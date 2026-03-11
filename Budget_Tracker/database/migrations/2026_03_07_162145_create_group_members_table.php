@@ -6,25 +6,22 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('group_members', function (Blueprint $table) {
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->foreignId('group_id')->constrained()->onDelete('cascade');
-            $table->enum('role', ['Admin', 'Member']);
-            $table->date('joined_at');
-            $table->primary(['user_id', 'group_id']);
+            $table->id();
+            $table->foreignId('group_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+            $table->enum('role', ['Admin', 'Member'])->default('Member');
+            $table->date('joined_at')->nullable();
+            $table->timestamps();
+            $table->unique(['group_id', 'user_id']);
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('group_members');
+        Schema::dropIfExists('groups');
     }
 };
