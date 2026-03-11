@@ -354,6 +354,77 @@
     .quick-add-btn:hover { background: #f7bc71; transform: translateY(-1px); }
     .quick-add-btn svg { width: 16px; height: 16px; stroke: #1C1C1E; fill: none; stroke-width: 2.5; stroke-linecap: round; }
 
+    /* ── Modal ── */
+    .hidden { display: none !important; }
+
+    .modal-overlay {
+        position: fixed; inset: 0;
+        background: rgba(0,0,0,0.45);
+        z-index: 200;
+        display: flex; align-items: center; justify-content: center;
+        backdrop-filter: blur(4px);
+    }
+    .modal-box {
+        background: #fff;
+        border-radius: 24px;
+        padding: 32px;
+        width: 100%;
+        max-width: 440px;
+        position: relative;
+        animation: modalUp 0.25s ease;
+    }
+    @keyframes modalUp { from{opacity:0;transform:translateY(14px)} to{opacity:1;transform:translateY(0)} }
+
+    .modal-close {
+        position: absolute; top: 20px; right: 20px;
+        background: none; border: none;
+        font-size: 20px; color: #aaa; cursor: pointer;
+    }
+    .modal-title { font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 800; margin-bottom: 4px; }
+    .modal-sub   { font-size: 13px; color: #aaa; margin-bottom: 24px; }
+
+    .form-group  { display: flex; flex-direction: column; gap: 5px; margin-bottom: 14px; }
+    .form-label  { font-size: 12px; font-weight: 600; color: #666; }
+    .form-error  { font-size: 12px; color: #ef4444; }
+
+    .form-input, .form-select {
+        padding: 12px 16px;
+        border-radius: 13px;
+        border: 1.5px solid #ede9e1;
+        font-size: 14px;
+        font-family: 'DM Sans', sans-serif;
+        outline: none;
+        width: 100%;
+        background: #fff;
+        transition: border-color 0.2s;
+    }
+    .form-input:focus, .form-select:focus {
+        border-color: #FBCF97;
+        box-shadow: 0 0 0 3px rgba(251,207,151,0.2);
+    }
+
+    .type-grid {
+        display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+    }
+    .type-opt {
+        text-align: center; padding: 11px; border-radius: 13px;
+        border: 2px solid #e5e7eb; background: #fff;
+        font-size: 13px; font-weight: 700; color: #aaa;
+        cursor: pointer; transition: all 0.18s;
+    }
+    .active-expense { border-color: #FBCF97; background: #fff9f0; color: #9a5a10; }
+    .active-income  { border-color: #2EB872; background: #f0fdf4; color: #065f46; }
+
+    .submit-btn {
+        width: 100%; background: #FBCF97; border: none;
+        border-radius: 14px; padding: 14px;
+        font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 700;
+        color: #1C1C1E; cursor: pointer;
+        display: flex; align-items: center; justify-content: center; gap: 8px;
+        transition: all 0.2s; margin-top: 4px;
+    }
+    .submit-btn:hover { background: #f7bc71; transform: translateY(-1px); }
+
     /* ── Animations ── */
     @keyframes fadeUp {
         from { opacity: 0; transform: translateY(16px); }
@@ -389,7 +460,7 @@
     {{-- Top bar --}}
     <div class="topbar">
         <div>
-            <div class="topbar-title">Good morning, {{ Auth::user()->username }} 👋</div>
+            <div class="topbar-title">Good morning, {{ Auth::user()->username }}</div>
             <div class="topbar-subtitle">Here's your financial snapshot for this month.</div>
         </div>
         <div style="display:flex;align-items:center;gap:12px;">
@@ -398,7 +469,7 @@
                 {{ now()->format('F Y') }}
                 <svg viewBox="0 0 24 24" style="width:13px;height:13px;fill:none;stroke:#888;stroke-width:2.5;stroke-linecap:round"><polyline points="6,9 12,15 18,9"/></svg>
             </button>
-            <button class="quick-add-btn" style="width:auto;padding:13px 20px;" onclick="openModal()">
+            <button class="quick-add-btn" style="width:auto;padding:13px 20px;" onclick="openModal('add-modal')">
                 <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
                 Add Transaction
             </button>
@@ -606,48 +677,72 @@
 </main>
 
 {{-- ══════════ ADD TRANSACTION MODAL ══════════ --}}
-<div id="add-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:200;align-items:center;justify-content:center;backdrop-filter:blur(4px);" onclick="if(event.target===this)closeModal()">
-    <div style="background:#fff;border-radius:24px;padding:32px;width:100%;max-width:420px;position:relative;" onclick="event.stopPropagation()">
-        <button onclick="closeModal()" style="position:absolute;top:20px;right:20px;background:none;border:none;font-size:20px;color:#aaa;cursor:pointer;">✕</button>
-        <h2 style="font-family:'Syne',sans-serif;font-size:20px;font-weight:800;margin-bottom:6px;">Add Transaction</h2>
-        <p style="font-size:13px;color:#aaa;margin-bottom:24px;">Log a new income or expense</p>
+<div id="add-modal" class="modal-overlay hidden" onclick="if(event.target===this)closeModal('add-modal')">
+    <div class="modal-box" onclick="event.stopPropagation()">
+        <button class="modal-close" onclick="closeModal('add-modal')">✕</button>
+        <div class="modal-title">Add Transaction</div>
+        <div class="modal-sub">Log a new income or expense</div>
 
-        <form method="POST" action="{{ route('transactions.store') }}" style="display:flex;flex-direction:column;gap:14px;">
+        <form method="POST" action="{{ route('transactions.store') }}" enctype="multipart/form-data">
             @csrf
-            {{-- Type toggle — values match DB enum: 'Expense' / 'Income' --}}
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-                <label style="cursor:pointer;">
-                    <input type="radio" name="type" value="Expense" checked style="display:none;">
-                    <div class="type-btn" data-val="Expense" style="text-align:center;padding:11px;border-radius:14px;border:2px solid #FBCF97;background:#fff9f0;font-size:13px;font-weight:700;color:#9a5a10;cursor:pointer;" onclick="selectType('Expense')">💸 Expense</div>
-                </label>
-                <label style="cursor:pointer;">
-                    <input type="radio" name="type" value="Income" style="display:none;">
-                    <div class="type-btn" data-val="Income" style="text-align:center;padding:11px;border-radius:14px;border:2px solid #e5e7eb;background:#fff;font-size:13px;font-weight:700;color:#aaa;cursor:pointer;" onclick="selectType('Income')">💰 Income</div>
-                </label>
+
+            {{-- Type --}}
+            <div class="form-group">
+                <span class="form-label">Type</span>
+                <div class="type-grid">
+                    <div class="type-opt active-expense" id="opt-expense" onclick="setType('Expense')">💸 Expense</div>
+                    <div class="type-opt" id="opt-income"  onclick="setType('Income')">💰 Income</div>
+                </div>
+                <input type="hidden" name="type" id="type-input" value="Expense">
+                @error('type') <span class="form-error">{{ $message }}</span> @enderror
             </div>
 
-            <input type="number" name="amount" placeholder="Amount (e.g. 42.50)" step="0.01" min="0.01" required
-                   style="padding:14px 18px;border-radius:14px;border:1.5px solid #ede9e1;font-size:15px;font-family:'Poppins',sans-serif;font-weight:700;outline:none;width:100%;transition:border-color 0.2s;"
-                   onfocus="this.style.borderColor='#FBCF97'" onblur="this.style.borderColor='#ede9e1'">
+            {{-- Amount --}}
+            <div class="form-group">
+                <label class="form-label">Amount ($)</label>
+                <input type="number" name="amount" step="0.01" min="0.01" placeholder="0.00"
+                       value="{{ old('amount') }}" class="form-input" required>
+                @error('amount') <span class="form-error">{{ $message }}</span> @enderror
+            </div>
 
-            <input type="text" name="description" placeholder="Description (e.g. Grocery run)" required
-                   style="padding:13px 18px;border-radius:14px;border:1.5px solid #ede9e1;font-size:14px;outline:none;width:100%;transition:border-color 0.2s;"
-                   onfocus="this.style.borderColor='#FBCF97'" onblur="this.style.borderColor='#ede9e1'">
+            {{-- Description --}}
+            <div class="form-group">
+                <label class="form-label">Description</label>
+                <input type="text" name="description" placeholder="e.g. Grocery run"
+                       value="{{ old('description') }}" class="form-input" required>
+                @error('description') <span class="form-error">{{ $message }}</span> @enderror
+            </div>
 
-            {{-- category_id — populated from DB via $categories passed by DashboardController --}}
-            <select name="category_id" required style="padding:13px 18px;border-radius:14px;border:1.5px solid #ede9e1;font-size:14px;color:#555;outline:none;width:100%;background:#fff;cursor:pointer;">
-                <option value="">Select category</option>
-                @foreach($categories ?? [] as $cat)
-                    <option value="{{ data_get($cat, 'id') }}">{{ data_get($cat, 'name') }}</option>
-                @endforeach
-            </select>
+            {{-- Category --}}
+            <div class="form-group">
+                <label class="form-label">Category</label>
+                <select name="category_id" class="form-select" required>
+                    <option value="">Select a category</option>
+                    @foreach($categories ?? [] as $cat)
+                        <option value="{{ $cat->id }}" {{ old('category_id') == $cat->id ? 'selected' : '' }}>
+                            {{ $cat->name }}
+                        </option>
+                    @endforeach
+                </select>
+                @error('category_id') <span class="form-error">{{ $message }}</span> @enderror
+            </div>
 
-            <input type="date" name="date" value="{{ now()->format('Y-m-d') }}" required
-                   style="padding:13px 18px;border-radius:14px;border:1.5px solid #ede9e1;font-size:14px;outline:none;width:100%;transition:border-color 0.2s;"
-                   onfocus="this.style.borderColor='#FBCF97'" onblur="this.style.borderColor='#ede9e1'">
+            {{-- Date --}}
+            <div class="form-group">
+                <label class="form-label">Date</label>
+                <input type="date" name="date" value="{{ old('date', now()->format('Y-m-d')) }}" class="form-input" required>
+                @error('date') <span class="form-error">{{ $message }}</span> @enderror
+            </div>
 
-            <button type="submit" class="quick-add-btn" style="margin-top:4px;">
-                <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            {{-- Receipt --}}
+            <div class="form-group">
+                <label class="form-label">Receipt Image (optional)</label>
+                <input type="file" name="receipt_image" accept="image/*" class="form-input" style="padding:8px 14px;">
+                @error('receipt_image') <span class="form-error">{{ $message }}</span> @enderror
+            </div>
+
+            <button type="submit" class="submit-btn">
+                <svg viewBox="0 0 24 24" style="width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
                 Save Transaction
             </button>
         </form>
@@ -658,35 +753,17 @@
 
 @push('scripts')
 <script>
-    function openModal() {
-        const m = document.getElementById('add-modal');
-        m.style.display = 'flex';
-    }
+    function openModal(id)  { document.getElementById(id).classList.remove('hidden'); }
+    function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
 
-    function closeModal() {
-        const m = document.getElementById('add-modal');
-        m.style.display = 'none';
-    }
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal('add-modal'); });
 
-    // Close on Escape key
-    document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape') closeModal();
-    });
-
-    function selectType(val) {
-        document.querySelectorAll('.type-btn').forEach(btn => {
-            const isActive = btn.dataset.val === val;
-            if (isActive) {
-                btn.style.borderColor = val === 'Expense' ? '#FBCF97' : '#2EB872';
-                btn.style.background  = val === 'Expense' ? '#fff9f0' : '#f0fdf4';
-                btn.style.color       = val === 'Expense' ? '#9a5a10' : '#065f46';
-            } else {
-                btn.style.borderColor = '#e5e7eb';
-                btn.style.background  = '#fff';
-                btn.style.color       = '#aaa';
-            }
-        });
-        document.querySelector(`input[name="type"][value="${val}"]`).checked = true;
+    function setType(val) {
+        document.getElementById('type-input').value = val;
+        const expense = document.getElementById('opt-expense');
+        const income  = document.getElementById('opt-income');
+        expense.className = 'type-opt' + (val === 'Expense' ? ' active-expense' : '');
+        income.className  = 'type-opt' + (val === 'Income'  ? ' active-income'  : '');
     }
 </script>
 @endpush

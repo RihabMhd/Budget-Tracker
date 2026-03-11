@@ -339,39 +339,6 @@
         </div>
     </form>
 
-    {{-- Summary strip --}}
-    @php
-        $allTx     = \App\Models\Transaction::where('user_id', Auth::id())->thisMonth()->get();
-        $income    = $allTx->where('type','Income')->sum('amount');
-        $expenses  = $allTx->where('type','Expense')->sum('amount');
-        $net       = $income - $expenses;
-    @endphp
-    <div class="summary-strip">
-        <div class="summary-card">
-            <div class="summary-icon" style="background:#d1fae5;">💰</div>
-            <div>
-                <div class="summary-label">Income this month</div>
-                <div class="summary-val" style="color:#2EB872;">${{ number_format($income, 2) }}</div>
-            </div>
-        </div>
-        <div class="summary-card">
-            <div class="summary-icon" style="background:#fff3e0;">💸</div>
-            <div>
-                <div class="summary-label">Expenses this month</div>
-                <div class="summary-val">${{ number_format($expenses, 2) }}</div>
-            </div>
-        </div>
-        <div class="summary-card">
-            <div class="summary-icon" style="background:{{ $net >= 0 ? '#d1fae5' : '#fee2e2' }};">{{ $net >= 0 ? '📈' : '📉' }}</div>
-            <div>
-                <div class="summary-label">Net balance</div>
-                <div class="summary-val" style="color:{{ $net >= 0 ? '#2EB872' : '#ef4444' }};">
-                    {{ $net >= 0 ? '+' : '' }}${{ number_format(abs($net), 2) }}
-                </div>
-            </div>
-        </div>
-    </div>
-
     {{-- Table --}}
     <div class="table-panel">
         <table>
