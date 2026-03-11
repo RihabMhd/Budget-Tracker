@@ -16,6 +16,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\BudgetController;
 
 Route::get('/', function () {
     return view('auth.login');
@@ -37,6 +39,11 @@ Route::middleware('guest')->group(function () {
 // Authenticated only
 Route::middleware('auth')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+
+    Route::get('/profile',           [ProfileController::class, 'show'])->name('profile.show');
+    Route::patch('/profile',         [ProfileController::class, 'update'])->name('profile.update');
+    Route::patch('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password');
+
     Route::get('/dashboard', [DashboardController::class, 'index'])->middleware('auth')->name('dashboard');
 
     Route::get('/transactions',          [TransactionController::class, 'index'])->name('transactions.index');
@@ -44,4 +51,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/transactions/{transaction}/edit', [TransactionController::class, 'edit'])->name('transactions.edit');
     Route::put('/transactions/{transaction}',      [TransactionController::class, 'update'])->name('transactions.update');
     Route::delete('/transactions/{transaction}',      [TransactionController::class, 'destroy'])->name('transactions.destroy');
+
+
+    Route::get('/budgets',            [BudgetController::class, 'index'])->name('budgets.index');
+    Route::post('/budgets',           [BudgetController::class, 'store'])->name('budgets.store');
+    Route::patch('/budgets/{budget}', [BudgetController::class, 'update'])->name('budgets.update');
+    Route::delete('/budgets/{budget}', [BudgetController::class, 'destroy'])->name('budgets.destroy');
 });

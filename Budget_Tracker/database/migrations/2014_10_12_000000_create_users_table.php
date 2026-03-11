@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('password');
             $table->string('profile_photo')->nullable();
             $table->integer('points')->default(0);
+            $table->float('monthly_budget')->nullable()->default(null);
             $table->integer('current_streak')->default(0);
             $table->dateTime('last_activity');
             $table->timestamps();
