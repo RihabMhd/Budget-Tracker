@@ -16,25 +16,28 @@ class Budget extends Model
         return $this->belongsTo(Category::class);
     }
 
-
-    public function getCurrentSpendingAttribute()
+    public function user()
     {
-        // This dynamically sums transactions for the category and current month
-        return Transaction::where('category_id', $this->category_id)
+        return $this->belongsTo(User::class);
+    }
+
+    public function getCurrentSpendingAttribute(): float
+    {
+        return (float) Transaction::where('category_id', $this->category_id)
             ->where('user_id', $this->user_id)
-            ->expense()   // Uses scope from Transaction model
-            ->thisMonth() // Uses scope from Transaction model
-            ->sum('amount') ?? 0;
+            ->expense()
+            ->thisMonth()
+            ->sum('amount');
     }
 
     public function getPercentUsedAttribute(): int
     {
-        if ($this->monthly_limit <= 0) return 0;
-        return (int) min(100, round(($this->current_spending / $this->monthly_limit) * 100));
+        if ((float) $this->monthly_limit <= 0) return 0;
+        return (int) min(100, round(($this->current_spending / (float) $this->monthly_limit) * 100));
     }
 
     public function getRemainingAttribute(): float
     {
-        return max(0, $this->monthly_limit - $this->current_spending);
+        return (float) $this->monthly_limit - $this->current_spending;
     }
 }

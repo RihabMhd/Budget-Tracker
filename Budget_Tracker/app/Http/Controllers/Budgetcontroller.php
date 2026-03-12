@@ -66,18 +66,25 @@ class BudgetController extends Controller
             'monthly_limit' => ['required', 'numeric', 'min:1'],
         ]);
 
-        $spending = Transaction::forUser(Auth::id())
-            ->thisMonth()
-            ->expense()
-            ->where('category_id', $request->category_id)
-            ->sum('amount');
-
         Budget::updateOrCreate(
             ['user_id' => Auth::id(), 'category_id' => $request->category_id],
-            ['monthly_limit' => $request->monthly_limit, 'current_spending' => $spending]
+            ['monthly_limit' => $request->monthly_limit]
         );
 
         return back()->with('success', 'Category budget saved.');
+    }
+
+    public function update(Request $request, Budget $budget)
+    {
+        abort_unless($budget->user_id === Auth::id(), 403);
+
+        $request->validate([
+            'monthly_limit' => ['required', 'numeric', 'min:1'],
+        ]);
+
+        $budget->update(['monthly_limit' => $request->monthly_limit]);
+
+        return back()->with('success', 'Budget updated.');
     }
 
     public function destroy(Budget $budget)

@@ -6,40 +6,71 @@ use App\Models\Transaction;
 use App\Models\Category;
 use App\Models\Budget;
 use App\Models\Goal;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 
 class DashboardController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $user = Auth::user();
 
+        // Resolve the selected month from ?month=YYYY-MM, defaulting to current month
+        try {
+            $selectedMonth = $request->get('month')
+                ? Carbon::createFromFormat('Y-m', $request->get('month'))->startOfMonth()
+                : Carbon::now()->startOfMonth();
+        } catch (\Exception $e) {
+            $selectedMonth = Carbon::now()->startOfMonth();
+        }
+
+        // Clamp: don't allow future months
+        if ($selectedMonth->gt(Carbon::now()->startOfMonth())) {
+            $selectedMonth = Carbon::now()->startOfMonth();
+        }
+
+        $prevMonth      = $selectedMonth->copy()->subMonth()->format('Y-m');
+        $nextMonth      = $selectedMonth->copy()->addMonth()->format('Y-m');
+        $isCurrentMonth = $selectedMonth->isSameMonth(Carbon::now());
+
+        // ── 1. KPI Stats ──
         $startingAllowance = $user->monthly_budget ?? 0;
-        $monthlyIncome   = Transaction::forUser($user->id)->thisMonth()->income()->sum('amount');
+
+        $monthlyIncome = Transaction::forUser($user->id)
+            ->whereYear('date', $selectedMonth->year)
+            ->whereMonth('date', $selectedMonth->month)
+            ->income()
+            ->sum('amount');
+
         $monthlyExpenses = Transaction::forUser($user->id)
-            ->thisMonth()
+            ->whereYear('date', $selectedMonth->year)
+            ->whereMonth('date', $selectedMonth->month)
             ->expense()
             ->sum('amount');
+
         $remainingWallet = $startingAllowance - $monthlyExpenses;
+
         $spentPercentage = $startingAllowance > 0
             ? ($monthlyExpenses / $startingAllowance) * 100
             : 0;
-        $totalBalance    = Transaction::forUser($user->id)->income()->sum('amount')
+
+        // Total balance is always all-time, not filtered by month
+        $totalBalance = Transaction::forUser($user->id)->income()->sum('amount')
             - Transaction::forUser($user->id)->expense()->sum('amount');
 
-        $savingsRate     = $monthlyIncome > 0
+        $savingsRate = $monthlyIncome > 0
             ? round((($monthlyIncome - $monthlyExpenses) / $monthlyIncome) * 100)
             : 0;
 
-        // 2. Bar Chart: Income vs Expenses (Last 9 Months)
-        $chartMonths  = [];
-        $chartIncomes = [];
+        // ── 2. Bar Chart: 9 months ending on selected month ──
+        $chartMonths   = [];
+        $chartIncomes  = [];
         $chartExpenses = [];
 
         for ($i = 8; $i >= 0; $i--) {
-            $month = Carbon::now()->startOfMonth()->subMonths($i);
+            $month = $selectedMonth->copy()->subMonths($i);
             $chartMonths[] = $month->format('M');
 
             $chartIncomes[] = (float) Transaction::forUser($user->id)
@@ -55,31 +86,30 @@ class DashboardController extends Controller
                 ->sum('amount');
         }
 
-        // 3. Goals Logic
-        $goal = Goal::where('user_id', $user->id)->where('is_active', true)->first();
+        // ── 3. Goal ──
+        $goal         = Goal::where('user_id', $user->id)->where('is_active', true)->first();
         $goalSaved    = $goal->current_amount ?? 0;
         $goalTarget   = $goal->target_amount ?? 1;
         $goalPct      = $goalTarget > 0 ? min(100, round(($goalSaved / $goalTarget) * 100)) : 0;
         $goalTitle    = $goal->name ?? 'No active goal';
         $goalDeadline = $goal?->deadline?->format('M j, Y') ?? null;
 
-        // 4. Budgets Logic 
-        // We load the 'category' relationship to display names/colors in the UI
+        // ── 4. Budgets ──
         $budgets = Budget::where('user_id', $user->id)
             ->with('category')
             ->whereHas('category')
             ->get();
 
-        // 5. Spending by Category (The Circular Chart / List)
+        // ── 5. Spending by Category for selected month ──
         $spendingByCategory = Transaction::forUser($user->id)
-            ->thisMonth()
+            ->whereYear('date', $selectedMonth->year)
+            ->whereMonth('date', $selectedMonth->month)
             ->expense()
-            ->whereNotNull('category_id') // Prevent "property of null" errors
+            ->whereNotNull('category_id')
             ->select('category_id', DB::raw('SUM(amount) as total'))
             ->groupBy('category_id')
             ->get()
             ->map(function ($row) use ($monthlyExpenses) {
-                // Critical Safety: If category was deleted but transaction remains
                 if (!$row->category) return null;
 
                 return [
@@ -91,18 +121,20 @@ class DashboardController extends Controller
                         : 0,
                 ];
             })
-            ->filter() // Removes the null entries
+            ->filter()
             ->values();
 
-        // 6. Recent Transactions
+        // ── 6. Recent Transactions for selected month ──
         $recentTransactions = Transaction::forUser($user->id)
             ->with('category')
+            ->whereYear('date', $selectedMonth->year)
+            ->whereMonth('date', $selectedMonth->month)
             ->orderByDesc('date')
             ->orderByDesc('created_at')
             ->limit(7)
             ->get();
 
-        // 7. Categories for the "Add Transaction" Modal dropdown
+        // ── 7. Categories for the modal dropdown ──
         $categories = Category::orderBy('name')->get();
 
         return view('dashboard.index', compact(
@@ -125,7 +157,11 @@ class DashboardController extends Controller
             'budgets',
             'spendingByCategory',
             'recentTransactions',
-            'remainingWallet'
+            'remainingWallet',
+            'selectedMonth',
+            'prevMonth',
+            'nextMonth',
+            'isCurrentMonth'
         ));
     }
 }
