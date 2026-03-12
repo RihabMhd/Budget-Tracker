@@ -273,6 +273,85 @@
         .summary-strip { grid-template-columns:1fr; }
         .filter-bar    { flex-direction:column; align-items:stretch; }
     }
+
+    /* ── Custom category select ── */
+    .cat-select-wrap {
+        position: relative;
+    }
+
+    .cat-select-trigger {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 9px 12px;
+        background: #fff;
+        border: 1.5px solid #ede9e1;
+        border-radius: 12px;
+        font-size: 13px;
+        font-family: 'DM Sans', sans-serif;
+        color: #1a1a1a;
+        cursor: pointer;
+        transition: border-color 0.2s;
+        min-width: 160px;
+        user-select: none;
+    }
+
+    .cat-select-trigger:hover {
+        border-color: #FBCF97;
+    }
+
+    .cat-select-trigger.open {
+        border-color: #FBCF97;
+        box-shadow: 0 0 0 3px rgba(251,207,151,0.2);
+    }
+
+    .cat-select-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        flex-shrink: 0;
+        display: inline-block;
+    }
+
+    .cat-select-dropdown {
+        position: absolute;
+        top: calc(100% + 6px);
+        left: 0;
+        right: 0;
+        background: #fff;
+        border: 1.5px solid #ede9e1;
+        border-radius: 12px;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.09);
+        z-index: 100;
+        overflow: hidden;
+        max-height: 220px;
+        overflow-y: auto;
+    }
+
+    .cat-option {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        padding: 9px 14px;
+        font-size: 13px;
+        color: #1a1a1a;
+        cursor: pointer;
+        transition: background 0.15s;
+    }
+
+    .cat-option:hover {
+        background: #F5F3EE;
+    }
+
+    .cat-option-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        flex-shrink: 0;
+        display: inline-block;
+    }
+
+    .hidden { display: none !important; }
 </style>
 @endpush
 
@@ -317,12 +396,28 @@
             </div>
             <div class="filter-group">
                 <span class="filter-label">Category</span>
-                <select name="category_id" class="filter-select">
-                    <option value="">All categories</option>
-                    @foreach($categories as $cat)
-                        <option value="{{ $cat->id }}" {{ request('category_id') == $cat->id ? 'selected' : '' }}>{{ $cat->name }}</option>
-                    @endforeach
-                </select>
+                <div class="cat-select-wrap" id="filter-cat-wrap">
+                    <div class="cat-select-trigger" id="filter-cat-trigger" onclick="toggleCatDropdown('filter')">
+                        <span class="cat-select-dot" id="filter-cat-dot"
+                            style="background:{{ collect($categories)->firstWhere('id', request('category_id'))?->color ?? 'transparent' }};
+                                   border:{{ request('category_id') ? 'none' : '1.5px dashed #ccc' }};"></span>
+                        <span id="filter-cat-label">{{ collect($categories)->firstWhere('id', request('category_id'))?->name ?? 'All categories' }}</span>
+                        <svg viewBox="0 0 24 24" style="width:12px;height:12px;fill:none;stroke:#aaa;stroke-width:2.5;stroke-linecap:round;margin-left:auto;"><polyline points="6,9 12,15 18,9"/></svg>
+                    </div>
+                    <div class="cat-select-dropdown hidden" id="filter-cat-dropdown">
+                        <div class="cat-option" onclick="selectCat('filter', '', 'All categories', 'transparent', true)">
+                            <span class="cat-option-dot" style="border:1.5px dashed #ccc;background:transparent;"></span>
+                            All categories
+                        </div>
+                        @foreach($categories as $cat)
+                            <div class="cat-option" onclick="selectCat('filter', '{{ $cat->id }}', '{{ $cat->name }}', '{{ $cat->color ?? '#FBCF97' }}', false)">
+                                <span class="cat-option-dot" style="background:{{ $cat->color ?? '#FBCF97' }};"></span>
+                                {{ $cat->name }}
+                            </div>
+                        @endforeach
+                    </div>
+                    <input type="hidden" name="category_id" id="filter-cat-input" value="{{ request('category_id') }}">
+                </div>
             </div>
             <div class="filter-group">
                 <span class="filter-label">From</span>
@@ -368,7 +463,14 @@
                         </div>
                     </td>
                     <td>
-                        <span style="font-size:13px;color:#555;">{{ $tx->category->name ?? '—' }}</span>
+                        @if($tx->category)
+                            <div style="display:inline-flex;align-items:center;gap:7px;">
+                                <span style="display:inline-block;width:9px;height:9px;border-radius:50%;flex-shrink:0;background:{{ $tx->category->color ?? '#FBCF97' }};"></span>
+                                <span style="font-size:13px;color:#555;">{{ $tx->category->name }}</span>
+                            </div>
+                        @else
+                            <span style="color:#ddd;">—</span>
+                        @endif
                     </td>
                     <td>
                         <span class="badge {{ strtolower($tx->type) }}">{{ $tx->type }}</span>
@@ -469,14 +571,24 @@
             {{-- Category --}}
             <div class="form-group">
                 <label class="form-label">Category</label>
-                <select name="category_id" class="form-select" required>
-                    <option value="">Select a category</option>
-                    @foreach($categories as $cat)
-                        <option value="{{ $cat->id }}" {{ old('category_id') == $cat->id ? 'selected' : '' }}>
-                            {{ $cat->name }}
-                        </option>
-                    @endforeach
-                </select>
+                <div class="cat-select-wrap" id="modal-cat-wrap">
+                    <div class="cat-select-trigger" id="modal-cat-trigger" onclick="toggleCatDropdown('modal')">
+                        <span class="cat-select-dot" id="modal-cat-dot"
+                            style="background:{{ collect($categories)->firstWhere('id', old('category_id'))?->color ?? 'transparent' }};
+                                   border:{{ old('category_id') ? 'none' : '1.5px dashed #ccc' }};"></span>
+                        <span id="modal-cat-label">{{ collect($categories)->firstWhere('id', old('category_id'))?->name ?? 'Select a category' }}</span>
+                        <svg viewBox="0 0 24 24" style="width:12px;height:12px;fill:none;stroke:#aaa;stroke-width:2.5;stroke-linecap:round;margin-left:auto;"><polyline points="6,9 12,15 18,9"/></svg>
+                    </div>
+                    <div class="cat-select-dropdown hidden" id="modal-cat-dropdown">
+                        @foreach($categories as $cat)
+                            <div class="cat-option" onclick="selectCat('modal', '{{ $cat->id }}', '{{ $cat->name }}', '{{ $cat->color ?? '#FBCF97' }}', false)">
+                                <span class="cat-option-dot" style="background:{{ $cat->color ?? '#FBCF97' }};"></span>
+                                {{ $cat->name }}
+                            </div>
+                        @endforeach
+                    </div>
+                    <input type="hidden" name="category_id" id="modal-cat-input" value="{{ old('category_id') }}" required>
+                </div>
                 @error('category_id') <span class="form-error">{{ $message }}</span> @enderror
             </div>
 
@@ -521,5 +633,37 @@
     @if($errors->any())
         openModal('add-modal');
     @endif
+
+    // ── Custom category select ──
+    function toggleCatDropdown(prefix) {
+        const dropdown = document.getElementById(prefix + '-cat-dropdown');
+        const trigger  = document.getElementById(prefix + '-cat-trigger');
+        const isOpen   = !dropdown.classList.contains('hidden');
+        // Close all open dropdowns first
+        document.querySelectorAll('.cat-select-dropdown').forEach(d => d.classList.add('hidden'));
+        document.querySelectorAll('.cat-select-trigger').forEach(t => t.classList.remove('open'));
+        if (!isOpen) {
+            dropdown.classList.remove('hidden');
+            trigger.classList.add('open');
+        }
+    }
+
+    function selectCat(prefix, id, name, color, isDashed) {
+        document.getElementById(prefix + '-cat-input').value = id;
+        document.getElementById(prefix + '-cat-label').textContent = name;
+        const dot = document.getElementById(prefix + '-cat-dot');
+        dot.style.background = isDashed ? 'transparent' : color;
+        dot.style.border = isDashed ? '1.5px dashed #ccc' : 'none';
+        document.getElementById(prefix + '-cat-dropdown').classList.add('hidden');
+        document.getElementById(prefix + '-cat-trigger').classList.remove('open');
+    }
+
+    // Close dropdowns when clicking outside
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('.cat-select-wrap')) {
+            document.querySelectorAll('.cat-select-dropdown').forEach(d => d.classList.add('hidden'));
+            document.querySelectorAll('.cat-select-trigger').forEach(t => t.classList.remove('open'));
+        }
+    });
 </script>
 @endpush
