@@ -9,39 +9,32 @@ class Budget extends Model
 {
     use HasFactory;
 
-    protected $fillable = [
-        'user_id',
-        'category_id',
-        'monthly_limit',
-        'current_spending',
-    ];
-
-    public function user()
-    {
-        return $this->belongsTo(User::class);
-    }
+    protected $fillable = ['user_id', 'category_id', 'monthly_limit'];
 
     public function category()
     {
         return $this->belongsTo(Category::class);
     }
 
-    /**
-     * Returns true if current spending has reached or exceeded the monthly limit.
-     */
-    public function checkAlert(): bool
+
+    public function getCurrentSpendingAttribute()
     {
-        return $this->current_spending >= $this->monthly_limit;
+        // This dynamically sums transactions for the category and current month
+        return Transaction::where('category_id', $this->category_id)
+            ->where('user_id', $this->user_id)
+            ->expense()   // Uses scope from Transaction model
+            ->thisMonth() // Uses scope from Transaction model
+            ->sum('amount') ?? 0;
+    }
+
+    public function getPercentUsedAttribute(): int
+    {
+        if ($this->monthly_limit <= 0) return 0;
+        return (int) min(100, round(($this->current_spending / $this->monthly_limit) * 100));
     }
 
     public function getRemainingAttribute(): float
     {
         return max(0, $this->monthly_limit - $this->current_spending);
-    }
-
-    public function getUsagePercentAttribute(): int
-    {
-        if ($this->monthly_limit <= 0) return 0;
-        return min(100, (int) round(($this->current_spending / $this->monthly_limit) * 100));
     }
 }

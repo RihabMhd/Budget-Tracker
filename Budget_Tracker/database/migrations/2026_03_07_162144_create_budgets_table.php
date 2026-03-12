@@ -13,7 +13,6 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->foreignId('category_id')->constrained()->cascadeOnDelete();
             $table->float('monthly_limit');
-            $table->float('current_spending')->default(0);
             $table->timestamps();
         });
     }
