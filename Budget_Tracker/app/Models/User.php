@@ -15,6 +15,7 @@ class User extends Authenticatable
         'password',
         'profile_photo',
         'points',
+        'monthly_budget',   
         'current_streak',
         'last_activity',
     ];
@@ -30,12 +31,30 @@ class User extends Authenticatable
         'current_streak' => 'integer',
     ];
 
-    public function transactions()   { return $this->hasMany(Transaction::class); }
-    public function categories()     { return $this->hasMany(Category::class); }
-    public function goals()          { return $this->hasMany(Goal::class); }
-    public function budgets()        { return $this->hasMany(Budget::class); }
-    public function expenseSplits()  { return $this->hasMany(ExpenseSplit::class); }
-    public function groupMemberships() { return $this->hasMany(GroupMember::class); }
+    public function transactions()
+    {
+        return $this->hasMany(Transaction::class);
+    }
+    public function categories()
+    {
+        return $this->hasMany(Category::class);
+    }
+    public function goals()
+    {
+        return $this->hasMany(Goal::class);
+    }
+    public function budgets()
+    {
+        return $this->hasMany(Budget::class);
+    }
+    public function expenseSplits()
+    {
+        return $this->hasMany(ExpenseSplit::class);
+    }
+    public function groupMemberships()
+    {
+        return $this->hasMany(GroupMember::class);
+    }
 
     public function badges()
     {
@@ -45,8 +64,8 @@ class User extends Authenticatable
     public function groups()
     {
         return $this->belongsToMany(Group::class, 'group_members')
-                    ->withPivot('role', 'joined_at')
-                    ->withTimestamps();
+            ->withPivot('role', 'joined_at')
+            ->withTimestamps();
     }
 
     public function checkStreak(): int

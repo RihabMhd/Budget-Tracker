@@ -318,7 +318,7 @@
                 @endif
             </div>
             @if($hasMonthly)
-                <div class="ov-value">${{ number_format(abs($remaining), 2) }}</div>
+                <div class="ov-value">${{ number_format(abs($remaining ?? 0), 2) }}</div>
                 <div class="ov-sub">{{ $isOver ? 'over your monthly limit' : 'left for the month' }}</div>
             @else
                 <div class="ov-value">—</div>

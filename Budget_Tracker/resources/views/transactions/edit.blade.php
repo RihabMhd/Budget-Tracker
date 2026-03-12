@@ -178,13 +178,17 @@
                     <svg viewBox="0 0 24 24" style="width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17,21 17,13 7,13 7,21"/><polyline points="7,3 7,8 15,8"/></svg>
                     Save Changes
                 </button>
-
-                <form method="POST" action="{{ route('transactions.destroy', $transaction) }}"
-                      onsubmit="return confirm('Permanently delete this transaction?')">
-                    @csrf @method('DELETE')
-                    <button type="submit" class="delete-btn">🗑️ Delete</button>
-                </form>
+                <button type="button" class="delete-btn"
+                        onclick="document.getElementById('delete-form').submit()">
+                    🗑️ Delete
+                </button>
             </div>
+        </form>
+
+        {{-- Delete form sits outside the edit form to avoid invalid nested forms --}}
+        <form id="delete-form" method="POST" action="{{ route('transactions.destroy', $transaction) }}"
+              onsubmit="return confirm('Permanently delete this transaction?')">
+            @csrf @method('DELETE')
         </form>
     </div>
 

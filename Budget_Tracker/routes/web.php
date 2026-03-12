@@ -18,6 +18,7 @@ use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\BudgetController;
+use App\Http\Controllers\CategoryController;
 
 Route::get('/', function () {
     return view('auth.login');
@@ -57,4 +58,11 @@ Route::middleware('auth')->group(function () {
     Route::post('/budgets',           [BudgetController::class, 'store'])->name('budgets.store');
     Route::patch('/budgets/{budget}', [BudgetController::class, 'update'])->name('budgets.update');
     Route::delete('/budgets/{budget}', [BudgetController::class, 'destroy'])->name('budgets.destroy');
+    Route::post('/budgets/monthly',     [BudgetController::class, 'storeMonthly'])->name('budgets.storeMonthly');
+    Route::post('/budgets/category',    [BudgetController::class, 'storeCategory'])->name('budgets.storeCategory');
+
+    Route::get('/categories',              [CategoryController::class, 'index'])->name('categories.index');
+    Route::post('/categories',             [CategoryController::class, 'store'])->name('categories.store');
+    Route::patch('/categories/{category}', [CategoryController::class, 'update'])->name('categories.update');
+    Route::delete('/categories/{category}', [CategoryController::class, 'destroy'])->name('categories.destroy');
 });
