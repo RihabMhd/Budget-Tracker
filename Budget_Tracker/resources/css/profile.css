@@ -1,0 +1,242 @@
+/* ── Profile hero ── */
+.profile-hero {
+    background: #1C1C1E;
+    border-radius: 24px;
+    padding: 36px;
+    display: flex;
+    align-items: center;
+    gap: 28px;
+    margin-bottom: 24px;
+    position: relative;
+    overflow: hidden;
+    animation: fadeUp 0.4s ease both;
+}
+
+.profile-hero::before {
+    content: '';
+    position: absolute; top: -60px; right: -60px;
+    width: 220px; height: 220px;
+    border-radius: 50%;
+    background: rgba(251, 207, 151, 0.08);
+}
+
+.profile-hero::after {
+    content: '';
+    position: absolute; bottom: -50px; left: 120px;
+    width: 160px; height: 160px;
+    border-radius: 50%;
+    background: rgba(46, 184, 114, 0.07);
+}
+
+.hero-avatar {
+    width: 88px; height: 88px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #FBCF97, #f7a94b);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Syne', sans-serif;
+    font-size: 32px;
+    font-weight: 800;
+    color: #1C1C1E;
+    flex-shrink: 0;
+    position: relative; z-index: 1;
+    box-shadow: 0 0 0 4px rgba(251, 207, 151, 0.25);
+}
+
+.hero-info    { flex: 1; position: relative; z-index: 1; }
+.hero-name    { font-family: 'Syne', sans-serif; font-size: 26px; font-weight: 800; color: #fff; letter-spacing: -0.5px; }
+.hero-email   { font-size: 13px; color: #666; margin-top: 3px; }
+.hero-since   { font-size: 12px; color: #555; margin-top: 8px; }
+
+.hero-badge-row {
+    display: flex;
+    gap: 8px;
+    margin-top: 14px;
+    flex-wrap: wrap;
+}
+
+.hero-pill {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 99px;
+    padding: 5px 12px;
+    font-size: 12px;
+    color: #aaa;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.hero-pill.green { background: rgba(46,184,114,0.15); border-color: rgba(46,184,114,0.3); color: #2EB872; }
+.hero-pill.peach { background: rgba(251,207,151,0.15); border-color: rgba(251,207,151,0.3); color: #FBCF97; }
+
+/* ── Stats row ── */
+.stats-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.mini-stat {
+    background: #fff;
+    border-radius: 18px;
+    border: 1px solid #ede9e1;
+    padding: 20px 22px;
+    animation: fadeUp 0.4s ease both;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.mini-stat:hover           { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(0,0,0,0.07); }
+.mini-stat:nth-child(1)    { animation-delay: 0.05s; }
+.mini-stat:nth-child(2)    { animation-delay: 0.10s; }
+.mini-stat:nth-child(3)    { animation-delay: 0.15s; }
+.mini-stat:nth-child(4)    { animation-delay: 0.20s; }
+
+.mini-stat-label { font-size: 11px; color: #bbb; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+.mini-stat-value { font-family: 'Syne', sans-serif; font-size: 22px; font-weight: 800; color: #1a1a1a; letter-spacing: -0.5px; }
+.mini-stat-sub   { font-size: 11px; color: #aaa; margin-top: 3px; }
+
+/* ── Two-column layout ── */
+.two-col {
+    display: grid;
+    grid-template-columns: 1fr 380px;
+    gap: 20px;
+    margin-bottom: 24px;
+}
+
+/* ── Profile form buttons ── */
+.btn-save {
+    background: #FBCF97;
+    border: none;
+    border-radius: 14px;
+    padding: 13px 24px;
+    font-family: 'Syne', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    color: #1C1C1E;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-save:hover { background: #f7bc71; transform: translateY(-1px); }
+
+.btn-danger {
+    background: #fff0f0;
+    border: 1.5px solid #fecaca;
+    border-radius: 14px;
+    padding: 13px 24px;
+    font-family: 'Syne', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    color: #dc2626;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-danger:hover { background: #fee2e2; }
+
+/* ── Badges ── */
+.badges-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+    gap: 14px;
+    margin-bottom: 4px;
+}
+
+.badge-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    text-align: center;
+}
+
+.badge-icon {
+    width: 56px; height: 56px;
+    border-radius: 16px;
+    background: linear-gradient(135deg, #fef3c7, #FBCF97);
+    border: 2px solid #fde68a;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 24px;
+    transition: transform 0.2s;
+}
+
+.badge-icon:hover { transform: scale(1.08); }
+
+.badge-name { font-size: 10px; color: #888; font-weight: 500; line-height: 1.3; }
+
+.badge-locked .badge-icon {
+    background: #f5f3ee;
+    border-color: #e8e4dc;
+    filter: grayscale(1);
+    opacity: 0.4;
+}
+
+/* ── Recent transactions ── */
+.tx-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 11px 0;
+    border-bottom: 1px solid #f4f1eb;
+}
+
+.tx-row:last-child { border-bottom: none; }
+
+.tx-dot {
+    width: 36px; height: 36px;
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 15px;
+    flex-shrink: 0;
+}
+
+.tx-desc      { flex: 1; }
+.tx-desc-name { font-size: 13px; font-weight: 600; color: #1a1a1a; }
+.tx-desc-cat  { font-size: 11px; color: #bbb; margin-top: 1px; }
+
+.tx-amt     { font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 700; }
+.tx-amt.inc { color: #2EB872; }
+.tx-amt.exp { color: #1a1a1a; }
+
+/* ── Streak card ── */
+.streak-card {
+    background: linear-gradient(135deg, #fff7ec, #fff);
+    border: 1px solid #fde8c4;
+    border-radius: 18px;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 16px;
+}
+
+.streak-flame-big { font-size: 36px; line-height: 1; }
+.streak-label     { font-size: 11px; color: #bbb; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; }
+.streak-num       { font-family: 'Syne', sans-serif; font-size: 28px; font-weight: 800; color: #e07a10; line-height: 1; }
+.streak-sub       { font-size: 12px; color: #aaa; margin-top: 2px; }
+
+/* ── Points card ── */
+.points-card {
+    background: #2EB872;
+    border-radius: 18px;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.points-icon  { font-size: 30px; }
+.points-label { font-size: 11px; color: rgba(255,255,255,0.6); font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; }
+.points-num   { font-family: 'Syne', sans-serif; font-size: 28px; font-weight: 800; color: #fff; line-height: 1; }
+.points-sub   { font-size: 12px; color: rgba(255,255,255,0.5); margin-top: 2px; }
+
+/* ── Responsive ── */
+@media (max-width: 1200px) {
+    .stats-row { grid-template-columns: repeat(2, 1fr); }
+    .two-col   { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 768px) {
+    .profile-hero { flex-direction: column; text-align: center; }
+}
