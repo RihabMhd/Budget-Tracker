@@ -94,11 +94,30 @@ class DashboardController extends Controller
         $goalTitle    = $goal->name ?? 'No active goal';
         $goalDeadline = $goal?->deadline?->format('M j, Y') ?? null;
 
-        // ── 4. Budgets ──
+        // ── 4. Budgets — returned as plain arrays to bypass any model accessor overrides ──
         $budgets = Budget::where('user_id', $user->id)
             ->with('category')
             ->whereHas('category')
-            ->get();
+            ->get()
+            ->map(function ($budget) use ($user, $selectedMonth) {
+                $spent = Transaction::forUser($user->id)
+                    ->whereYear('date', $selectedMonth->year)
+                    ->whereMonth('date', $selectedMonth->month)
+                    ->expense()
+                    ->where('category_id', $budget->category_id)
+                    ->sum('amount');
+
+                $percentUsed = $budget->monthly_limit > 0
+                    ? min(100, round(($spent / $budget->monthly_limit) * 100))
+                    : 0;
+
+                return [
+                    'category'         => $budget->category,
+                    'monthly_limit'    => $budget->monthly_limit,
+                    'current_spending' => $spent,
+                    'percent_used'     => $percentUsed,
+                ];
+            });
 
         // ── 5. Spending by Category for selected month ──
         $spendingByCategory = Transaction::forUser($user->id)

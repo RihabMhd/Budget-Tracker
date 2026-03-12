@@ -702,10 +702,10 @@
         @php
             $alerts = [];
             foreach ($budgets as $b) {
-                if ($b->percent_used >= 100)
-                    $alerts[] = ['type' => 'danger', 'icon' => '🚨', 'msg' => "<strong>{$b->category->name}</strong> budget exceeded — spent \$" . number_format($b->current_spending, 2) . " of \$" . number_format($b->monthly_limit, 2)];
-                elseif ($b->percent_used >= 80)
-                    $alerts[] = ['type' => 'warn', 'icon' => '⚠️', 'msg' => "<strong>{$b->category->name}</strong> is at {$b->percent_used}% of your budget"];
+                if ($b['percent_used'] >= 100)
+                    $alerts[] = ['type' => 'danger', 'icon' => '🚨', 'msg' => "<strong>{$b['category']->name}</strong> budget exceeded — spent \$" . number_format($b['current_spending'], 2) . " of \$" . number_format($b['monthly_limit'], 2)];
+                elseif ($b['percent_used'] >= 80)
+                    $alerts[] = ['type' => 'warn', 'icon' => '⚠️', 'msg' => "<strong>{$b['category']->name}</strong> is at {$b['percent_used']}% of your budget"];
             }
             if ($savingsRate < 10 && $monthlyIncome > 0)
                 $alerts[] = ['type' => 'warn', 'icon' => '📉', 'msg' => "Your savings rate is low at <strong>{$savingsRate}%</strong> this month"];
@@ -881,21 +881,21 @@
                             <div>
                                 <div class="budget-item-head">
                                     <div class="budget-item-name">
-                                        <div class="budget-color-dot" style="background:{{ $budget->category->color ?? '#FBCF97' }};"></div>
-                                        {{ $budget->category->name }}
+                                        <div class="budget-color-dot" style="background:{{ $budget['category']->color ?? '#FBCF97' }};"></div>
+                                        {{ $budget['category']->name }}
                                     </div>
                                     <div class="budget-item-amounts">
-                                        ${{ number_format($budget->current_spending, 2) }}
-                                        <span>/ ${{ number_format($budget->monthly_limit, 2) }}</span>
+                                        ${{ number_format($budget['current_spending'], 2) }}
+                                        <span>/ ${{ number_format($budget['monthly_limit'], 2) }}</span>
                                     </div>
                                 </div>
                                 <div class="budget-track-wrap">
                                     <div class="budget-track-fill" style="
-                                        width:{{ min(100, $budget->percent_used) }}%;
-                                        background:{{ $budget->percent_used >= 100 ? '#e05c5c' : ($budget->percent_used >= 80 ? '#FBCF97' : ($budget->category->color ?? '#2EB872')) }};
+                                        width:{{ min(100, $budget['percent_used']) }}%;
+                                        background:{{ $budget['percent_used'] >= 100 ? '#e05c5c' : ($budget['percent_used'] >= 80 ? '#FBCF97' : ($budget['category']->color ?? '#2EB872')) }};
                                     "></div>
                                 </div>
-                                <div class="budget-item-pct">{{ $budget->percent_used }}% used</div>
+                                <div class="budget-item-pct">{{ $budget['percent_used'] }}% used</div>
                             </div>
                         @empty
                             <p style="font-size:13px;color:#aaa;text-align:center;padding:20px 0;">No budgets set up yet.</p>
