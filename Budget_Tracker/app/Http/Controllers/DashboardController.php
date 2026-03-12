@@ -56,17 +56,18 @@ class DashboardController extends Controller
         }
 
         // 3. Goals Logic
-        $goal = Goal::where('user_id', $user->id)->first();
+        $goal = Goal::where('user_id', $user->id)->where('is_active', true)->first();
         $goalSaved    = $goal->current_amount ?? 0;
-        $goalTarget   = $goal->target_amount ?? 1; // Prevent division by zero
-        $goalPct      = round(($goalSaved / $goalTarget) * 100);
+        $goalTarget   = $goal->target_amount ?? 1;
+        $goalPct      = $goalTarget > 0 ? min(100, round(($goalSaved / $goalTarget) * 100)) : 0;
         $goalTitle    = $goal->name ?? 'No active goal';
-        $goalDeadline = $goal->deadline ?? null;
+        $goalDeadline = $goal?->deadline?->format('M j, Y') ?? null;
 
         // 4. Budgets Logic 
         // We load the 'category' relationship to display names/colors in the UI
         $budgets = Budget::where('user_id', $user->id)
             ->with('category')
+            ->whereHas('category')
             ->get();
 
         // 5. Spending by Category (The Circular Chart / List)

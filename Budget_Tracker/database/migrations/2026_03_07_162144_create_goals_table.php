@@ -11,10 +11,11 @@ return new class extends Migration
         Schema::create('goals', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
-            $table->string('title');
-            $table->float('target_amount');
-            $table->float('current_amount')->default(0);
+            $table->string('name');
+            $table->decimal('target_amount', 10, 2);
+            $table->decimal('current_amount', 10, 2)->default(0);
             $table->date('deadline')->nullable();
+            $table->boolean('is_active')->default(true);
             $table->timestamps();
         });
     }

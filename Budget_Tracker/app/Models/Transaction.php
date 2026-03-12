@@ -60,4 +60,17 @@ class Transaction extends Model
         return $query->whereMonth('date', Carbon::now()->month)
             ->whereYear('date', Carbon::now()->year);
     }
+
+    public function getFormattedAmountAttribute(): string
+    {
+        $prefix = $this->type === 'Income' ? '+' : '-';
+        return $prefix . '$' . number_format($this->amount, 2);
+    }
+
+    public function getReceiptUrlAttribute(): ?string
+    {
+        return $this->receipt_image_path
+            ? \Illuminate\Support\Facades\Storage::url($this->receipt_image_path)
+            : null;
+    }
 }

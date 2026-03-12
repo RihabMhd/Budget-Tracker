@@ -12,8 +12,9 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->foreignId('category_id')->constrained()->cascadeOnDelete();
-            $table->float('monthly_limit');
+            $table->decimal('monthly_limit', 10, 2);
             $table->timestamps();
+            $table->unique(['user_id', 'category_id']);
         });
     }
 

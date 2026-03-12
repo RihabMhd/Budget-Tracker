@@ -60,7 +60,6 @@ Route::middleware('auth')->group(function () {
     Route::delete('/budgets/{budget}', [BudgetController::class, 'destroy'])->name('budgets.destroy');
     Route::post('/budgets/monthly',     [BudgetController::class, 'storeMonthly'])->name('budgets.storeMonthly');
     Route::post('/budgets/category',    [BudgetController::class, 'storeCategory'])->name('budgets.storeCategory');
-    Route::delete('/budgets/{budget}',  [BudgetController::class, 'destroy'])->name('budgets.destroy');
 
     Route::get('/categories',              [CategoryController::class, 'index'])->name('categories.index');
     Route::post('/categories',             [CategoryController::class, 'store'])->name('categories.store');
