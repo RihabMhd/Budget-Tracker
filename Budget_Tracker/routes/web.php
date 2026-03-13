@@ -13,12 +13,12 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-use App\Http\Controllers\AuthController;
-use App\Http\Controllers\TransactionController;
-use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\BudgetController;
-use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\User\TransactionController;
+use App\Http\Controllers\User\DashboardController;
+use App\Http\Controllers\Profile\ProfileController;
+use App\Http\Controllers\User\BudgetController;
+use App\Http\Controllers\User\CategoryController;
 
 Route::get('/', function () {
     return view('auth.login');
