@@ -9,7 +9,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
 
-    @vite(['resources/css/app.css','resources/css/sidebar.css'])
+    @vite(['resources/css/app.css', 'resources/css/sidebar.css'])
     @stack('styles')
 </head>
 
@@ -24,10 +24,10 @@
         </svg>
     </button>
 
-   
+
     <nav class="sidebar">
 
-       
+
         <a href="#" class="sidebar-logo">
             <div class="sidebar-logo-icon">
                 <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
@@ -58,8 +58,7 @@
             </svg>
             Dashboard
         </a>
-        <a href="#"
-            class="nav-item {{ request()->routeIs('transactions.*') ? 'active' : '' }}">
+        <a href="#" class="nav-item {{ request()->routeIs('transactions.*') ? 'active' : '' }}">
             <svg viewBox="0 0 24 24">
                 <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
             </svg>
@@ -74,7 +73,7 @@
             Analytics
         </a>
 
-    
+
         <div class="nav-label">Planning</div>
         <a href="#" class="nav-item {{ request()->routeIs('goals.*') ? 'active' : '' }}">
             <svg viewBox="0 0 24 24">
@@ -110,10 +109,13 @@
             Bills
         </a>
 
-        
+
         <div class="sidebar-footer">
+
             <div class="user-chip">
-                <div class="user-avatar">{{ strtoupper(substr(Auth::user()->username, 0, 2)) }}</div>
+                <a href='{{ route('profile.show') }}'>
+                    <div class="user-avatar">{{ strtoupper(substr(Auth::user()->username, 0, 2)) }}</div>
+                </a>
                 <div class="user-info">
                     <div class="user-name">{{ Auth::user()->username }}</div>
                     <div class="user-pts">{{ number_format(Auth::user()->points) }} pts</div>
@@ -129,11 +131,13 @@
                     </button>
                 </form>
             </div>
+
+
         </div>
 
     </nav>
 
-    
+
     @yield('content')
 
     @stack('scripts')
