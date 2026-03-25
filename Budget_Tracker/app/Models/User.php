@@ -31,7 +31,12 @@ class User extends Authenticatable
         'current_streak' => 'integer',
     ];
 
-   
+    public function categories()
+    {
+        return $this->hasMany(Category::class);
+    }
+
+
     // public function transactions()
     // {
     //     return $this->hasMany(Transaction::class);
