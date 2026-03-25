@@ -9,13 +9,12 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
 
-    @vite(['resources/css/app.css'])
+    @vite(['resources/css/app.css', 'resources/css/sidebar.css'])
     @stack('styles')
 </head>
 
 <body>
 
-    {{-- Mobile toggle --}}
     <button class="mobile-toggle" onclick="document.querySelector('.sidebar').classList.toggle('open')"
         aria-label="Toggle menu">
         <svg viewBox="0 0 24 24">
@@ -25,11 +24,11 @@
         </svg>
     </button>
 
-    {{-- ══════════ SIDEBAR ══════════ --}}
+
     <nav class="sidebar">
 
-        {{-- Logo - exact same icon from your auth.blade.php --}}
-        <a href="{{ route('dashboard') }}" class="sidebar-logo">
+
+        <a href="#" class="sidebar-logo">
             <div class="sidebar-logo-icon">
                 <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
                     <g fill="currentColor" fill-rule="evenodd" clip-rule="evenodd">
@@ -49,9 +48,8 @@
             <span class="sidebar-logo-text">MyBudget</span>
         </a>
 
-        {{-- Overview --}}
         <div class="nav-label">Overview</div>
-        <a href="{{ route('dashboard') }}" class="nav-item {{ request()->routeIs('dashboard') ? 'active' : '' }}">
+        <a href="#" class="nav-item {{ request()->routeIs('dashboard') ? 'active' : '' }}">
             <svg viewBox="0 0 24 24">
                 <rect x="3" y="3" width="7" height="7" rx="1" />
                 <rect x="14" y="3" width="7" height="7" rx="1" />
@@ -60,8 +58,7 @@
             </svg>
             Dashboard
         </a>
-        <a href="{{ route('transactions.index') }}"
-            class="nav-item {{ request()->routeIs('transactions.*') ? 'active' : '' }}">
+        <a href="#" class="nav-item {{ request()->routeIs('transactions.*') ? 'active' : '' }}">
             <svg viewBox="0 0 24 24">
                 <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
             </svg>
@@ -76,7 +73,7 @@
             Analytics
         </a>
 
-        {{-- Planning --}}
+
         <div class="nav-label">Planning</div>
         <a href="#" class="nav-item {{ request()->routeIs('goals.*') ? 'active' : '' }}">
             <svg viewBox="0 0 24 24">
@@ -85,7 +82,7 @@
             </svg>
             Savings Goals
         </a>
-        <a href="{{ route('budgets.index') }}" class="nav-item {{ request()->routeIs('budgets.*') ? 'active' : '' }}">
+        <a href="#" class="nav-item {{ request()->routeIs('budgets.*') ? 'active' : '' }}">
             <svg viewBox="0 0 24 24">
                 <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
                 <polyline points="14,2 14,8 20,8" />
@@ -112,10 +109,13 @@
             Bills
         </a>
 
-        {{-- User + logout --}}
+
         <div class="sidebar-footer">
+
             <div class="user-chip">
-                <div class="user-avatar">{{ strtoupper(substr(Auth::user()->username, 0, 2)) }}</div>
+                <a href='{{ route('profile.show') }}'>
+                    <div class="user-avatar">{{ strtoupper(substr(Auth::user()->username, 0, 2)) }}</div>
+                </a>
                 <div class="user-info">
                     <div class="user-name">{{ Auth::user()->username }}</div>
                     <div class="user-pts">{{ number_format(Auth::user()->points) }} pts</div>
@@ -131,11 +131,13 @@
                     </button>
                 </form>
             </div>
+
+
         </div>
 
     </nav>
 
-    {{-- ══════════ PAGE CONTENT ══════════ --}}
+
     @yield('content')
 
     @stack('scripts')

@@ -45,4 +45,8 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile',         [ProfileController::class, 'update'])->name('profile.update');
     Route::patch('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password');
 
+    Route::get('/categories',              [CategoryController::class, 'index'])->name('categories.index');
+    Route::post('/categories',             [CategoryController::class, 'store'])->name('categories.store');
+    Route::patch('/categories/{category}', [CategoryController::class, 'update'])->name('categories.update');
+    Route::delete('/categories/{category}', [CategoryController::class, 'destroy'])->name('categories.destroy');
 });
