@@ -49,4 +49,10 @@ Route::middleware('auth')->group(function () {
     Route::post('/categories',             [CategoryController::class, 'store'])->name('categories.store');
     Route::patch('/categories/{category}', [CategoryController::class, 'update'])->name('categories.update');
     Route::delete('/categories/{category}', [CategoryController::class, 'destroy'])->name('categories.destroy');
+
+    Route::get('/transactions',          [TransactionController::class, 'index'])->name('transactions.index');
+    Route::post('/transactions',          [TransactionController::class, 'store'])->name('transactions.store');
+    Route::get('/transactions/{transaction}/edit', [TransactionController::class, 'edit'])->name('transactions.edit');
+    Route::put('/transactions/{transaction}',      [TransactionController::class, 'update'])->name('transactions.update');
+    Route::delete('/transactions/{transaction}',      [TransactionController::class, 'destroy'])->name('transactions.destroy');
 });
