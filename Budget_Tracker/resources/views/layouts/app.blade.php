@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@yield('title', 'Dashboard') - MyBudget</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #F9F7F2;
+            min-height: 100vh;
+            color: #1a1a1a;
+        }
+
+        /* ── Sidebar ── */
+        .sidebar {
+            width: 255px;
+            background: #fff;
+            height: 100vh;
+            position: fixed;
+            top: 0; left: 0;
+            display: flex;
+            flex-direction: column;
+            padding: 28px 20px;
+            z-index: 50;
+            border-right: 1px solid #f0ece4;
+            overflow-y: auto;
+        }
+
+        /* Logo */
+        .sidebar-logo {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            margin-bottom: 36px;
+            padding-left: 4px;
+        }
+
+        .sidebar-logo-icon {
+            background-color: #14532d; /* green-900 */
+            color: #fff;
+            padding: 7px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .sidebar-logo-text {
+            font-size: 20px;
+            font-weight: 700;
+            color: #111827;
+            letter-spacing: -0.3px;
+        }
+
+        /* Nav section label */
+        .nav-label {
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: 1.2px;
+            text-transform: uppercase;
+            color: #c0bbb1;
+            margin: 20px 0 6px 10px;
+        }
+
+        /* Nav item */
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 11px;
+            padding: 10px 14px;
+            border-radius: 10px;
+            color: #6b7280;
+            font-size: 13.5px;
+            font-weight: 500;
+            text-decoration: none;
+            transition: all 0.18s;
+            margin-bottom: 1px;
+        }
+
+        .nav-item:hover {
+            background: #F9F7F2;
+            color: #111827;
+        }
+
+        .nav-item.active {
+            background: #FBCF97;
+            color: #43321b;
+            font-weight: 600;
+        }
+
+        .nav-item svg {
+            width: 17px; height: 17px;
+            stroke: currentColor;
+            fill: none;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            flex-shrink: 0;
+        }
+
+        /* Sidebar footer */
+        .sidebar-footer {
+            margin-top: auto;
+            padding-top: 16px;
+            border-top: 1px solid #f0ece4;
+        }
+
+        .user-chip {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            border-radius: 12px;
+            background: #F9F7F2;
+            border: 1px solid #f0ece4;
+        }
+
+        .user-avatar {
+            width: 34px; height: 34px;
+            border-radius: 50%;
+            background: #FBCF97;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 700;
+            font-size: 12px;
+            color: #43321b;
+            flex-shrink: 0;
+        }
+
+        .user-info { flex: 1; min-width: 0; }
+        .user-name  { font-size: 13px; font-weight: 600; color: #111827; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .user-pts   { font-size: 11px; color: #16a34a; font-weight: 500; }
+
+        .logout-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            color: #9ca3af;
+            padding: 4px;
+            border-radius: 6px;
+            transition: color 0.15s;
+        }
+        .logout-btn:hover { color: #ef4444; }
+        .logout-btn svg {
+            width: 15px; height: 15px;
+            fill: none; stroke: currentColor;
+            stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+        }
+
+        /* ── Main content ── */
+        .main-content {
+            margin-left: 255px;
+            padding: 36px 44px;
+            min-height: 100vh;
+        }
+
+        /* ── Shared button styles (matching auth layout) ── */
+        .btn-modern {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            padding: 0.6rem 1.75rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+            border-radius: 8px;
+            transition: all 0.2s ease-in-out;
+            border: 1px solid rgba(0,0,0,0.05);
+            text-decoration: none;
+            cursor: pointer;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .btn-primary {
+            background-color: #FBCF97;
+            color: #43321b;
+            box-shadow: 0 4px 6px -1px rgba(251,207,151,0.4);
+        }
+        .btn-primary:hover {
+            background-color: #f7bc71;
+            transform: translateY(-1px);
+            box-shadow: 0 10px 15px -3px rgba(251,207,151,0.3);
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            color: #374151;
+            border: 1px solid #e5e7eb;
+        }
+        .btn-outline:hover {
+            background-color: #fff;
+            border-color: #d1d5db;
+            transform: translateY(-1px);
+        }
+
+        /* ── Mobile ── */
+        .mobile-toggle {
+            display: none;
+            position: fixed;
+            top: 14px; left: 14px;
+            z-index: 100;
+            background: #fff;
+            border: 1px solid #e5e7eb;
+            border-radius: 10px;
+            padding: 9px;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        .mobile-toggle svg {
+            width: 18px; height: 18px;
+            stroke: #374151; fill: none;
+            stroke-width: 2; stroke-linecap: round;
+            display: block;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar        { transform: translateX(-255px); transition: transform 0.28s ease; box-shadow: 4px 0 20px rgba(0,0,0,0.08); }
+            .sidebar.open   { transform: translateX(0); }
+            .main-content   { margin-left: 0; padding: 24px 18px; padding-top: 60px; }
+            .mobile-toggle  { display: block; }
+        }
+    </style>
+
+    @stack('styles')
+</head>
+<body>
+
+{{-- Mobile toggle --}}
+<button class="mobile-toggle" onclick="document.querySelector('.sidebar').classList.toggle('open')" aria-label="Toggle menu">
+    <svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+</button>
+
+{{-- ══════════ SIDEBAR ══════════ --}}
+<nav class="sidebar">
+
+    {{-- Logo - exact same icon from your auth.blade.php --}}
+    <a href="{{ route('dashboard') }}" class="sidebar-logo">
+        <div class="sidebar-logo-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+                <g fill="currentColor" fill-rule="evenodd" clip-rule="evenodd">
+                    <path d="M13.29 4.654c-.07-.22-.17-.42-.24-.64a4.5 4.5 0 0 1-.17-.83a.28.28 0 0 0-.27-.31a.29.29 0 0 0-.3.27a4.4 4.4 0 0 0 0 2q.137.555.39 1.069c.12.26.22.26.36.43s.69.19.72-.15c-.13-.55-.1-.61-.27-1.16c-.06-.26-.14-.47-.22-.68m3.808-1.638a.3.3 0 0 0-.4.08a5.6 5.6 0 0 0-1 1.619q-.19.488-.31 1a2.7 2.7 0 0 0-.18.909c0 .42.39.44.77.18c.2-.286.358-.6.47-.93q.186-.49.31-1a8 8 0 0 1 .43-1.469a.3.3 0 0 0-.09-.39"/><path d="M11.41 6.063a9 9 0 0 1-1.918-1.47a2.88 2.88 0 0 1-.76-2.118q0-.441.1-.87c.05-.2.1-.41.26-.5a.58.58 0 0 1 .54 0q.58.277 1.079.68a2.54 2.54 0 0 0 1.08.51a1.2 1.2 0 0 0 .769-.15c.312-.195.595-.434.84-.71c.14-.14.27-.31.45-.33c.263-.028.529.003.779.09c.743.409 1.54.709 2.369.89q.345.017.68-.07c.64-.17 1.179-.69 1.869-.76a2 2 0 0 1 .42 0q.186.01.36.08c.4.15.629.28.689.48a.6.6 0 0 1-.14.46c-.52.81-1.82 1.67-2.249 2.279q-.582.9-1.06 1.859c-.25.45.44.44.67 0c.44-.56.57-.9 1-1.47a17 17 0 0 1 1.649-1.449c.46-.373.807-.868 1-1.429c.13-.58-.1-1.2-1.2-1.68a2.3 2.3 0 0 0-.63-.17a4 4 0 0 0-.61 0a7 7 0 0 0-1.828.7a1.3 1.3 0 0 1-.55.09c-.84-.06-1.38-.6-2.07-.84A2.9 2.9 0 0 0 13.72.017a1.54 1.54 0 0 0-.72.3c-.25.19-.489.46-.739.69s-.23.26-.39.24a1.7 1.7 0 0 1-.6-.31a6.6 6.6 0 0 0-1.269-.76a1.53 1.53 0 0 0-1.4.11a1.4 1.4 0 0 0-.549.73c-.15.478-.217.978-.2 1.479a3.65 3.65 0 0 0 1.08 2.599a8.4 8.4 0 0 0 2.359 1.459c.35.14.54-.2.12-.49"/><path d="M11.92 7.682a15 15 0 0 0 1.6.43q.496.086.999.11q.5.037 1 0c.45 0 3.048-.49 2.858-1a.3.3 0 0 0-.38-.27c-1.728.33-3.501.35-5.237.06q-.735-.14-1.48-.2a5.15 5.15 0 0 0-3.088.06a7.3 7.3 0 0 0-1.859 1c-.82.59-1.55 1.32-2.319 2h-.01q-.405.04-.8.14q-.447.135-.87.339c-.57.28-1.07.683-1.468 1.18a2.4 2.4 0 0 0-.51 1.299a.91.91 0 0 0 .87 1a3.64 3.64 0 0 0 1.929-.45q.269-.175.5-.4q.247-.203.45-.45q.374-.425.629-.93a3.8 3.8 0 0 0 .32-1a.31.31 0 0 0-.24-.379a.3.3 0 0 0-.14 0c.74-.49 1.48-1 2.229-1.46a12 12 0 0 1 1.669-.869a5.7 5.7 0 0 1 1.949-.46c.478-.012.954.073 1.4.25m-7.496 2.769c-.078.29-.2.566-.36.82a2.9 2.9 0 0 1-.58.68q-.194.177-.41.329q-.21.162-.45.28a3.2 3.2 0 0 1-.719.2a4 4 0 0 1-.45.07a1.52 1.52 0 0 1 .39-.89a3.7 3.7 0 0 1 .88-.85a5 5 0 0 1 .71-.4q.35-.162.73-.24a.35.35 0 0 0 .259-.06l.07-.049s-.06.06-.07.11"/><path d="M23.205 15.938c-.68-1.4-2-2.609-2.879-3.898a8.8 8.8 0 0 1-.93-1.839c-.35-.89-.599-1.46-.889-2.359c-.1-.23-.68.09-.5.36c.27.89.39 1.37.71 2.259c.265.698.6 1.368 1 1.999c.69 1.1 1.739 2.139 2.428 3.288a3.52 3.52 0 0 1 .6 2.31c-.33 2.598-2.419 3.997-4.998 4.577c-2.241.457-4.562.34-6.746-.34a9.1 9.1 0 0 1-3.848-2.159a4.4 4.4 0 0 1-1.24-2.898a10.6 10.6 0 0 1 1.26-4.998c.415-.806.933-1.555 1.539-2.229a15 15 0 0 1 1.879-1.859c.38-.54 0-.63-.54-.36q-.991.826-1.849 1.79a12.2 12.2 0 0 0-1.7 2.358a11.3 11.3 0 0 0-1.498 5.338a5.3 5.3 0 0 0 1.439 3.568a9.9 9.9 0 0 0 4.248 2.499c2.356.733 4.86.853 7.276.35c2.999-.68 5.338-2.48 5.668-5.528a4.23 4.23 0 0 0-.43-2.229"/><path d="M9.881 10.57a5 5 0 0 0-.13 1.15a6.3 6.3 0 0 0 .39 2.43a2.6 2.6 0 0 0-.48 1.279c-.045.51.041 1.022.25 1.489c.22.47.517.899.88 1.27c.223.212.505.351.81.399a1.12 1.12 0 0 0 1.169-.8l.15-.62q.015-.213 0-.43a6 6 0 0 0-.07-.569a5 5 0 0 0-.14-.62a3.6 3.6 0 0 0-.27-.6a3 3 0 0 0-.52-.619c-.26-.24-.55-.45-.84-.68a.3.3 0 0 0-.34 0a8 8 0 0 1 .09-2.159c.09-.54.2-1.07.34-1.599q.19-.964.55-1.879c0-.38-.4-.3-.65 0c-.35.439-.645.919-.879 1.43a6 6 0 0 0-.31 1.129m.72 3.999a.31.31 0 0 0 .2-.24q.28.25.53.53a2.3 2.3 0 0 1 .32.49q.087.212.13.44q.028.24 0 .48v.739l-.08.29c-.12.23 0 .22-.29 0a3.9 3.9 0 0 1-.74-.87a2.2 2.2 0 0 1-.34-1c.017-.304.11-.6.27-.86"/>
+                </g>
+            </svg>
+        </div>
+        <span class="sidebar-logo-text">MyBudget</span>
+    </a>
+
+    {{-- Overview --}}
+    <div class="nav-label">Overview</div>
+    <a href="{{ route('dashboard') }}" class="nav-item {{ request()->routeIs('dashboard') ? 'active' : '' }}">
+        <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        Dashboard
+    </a>
+    <a href="{{ route('transactions.index') }}" class="nav-item {{ request()->routeIs('transactions.*') ? 'active' : '' }}">
+        <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+        Transactions
+    </a>
+    <a href="#" class="nav-item {{ request()->routeIs('analytics.*') ? 'active' : '' }}">
+        <svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        Analytics
+    </a>
+
+    {{-- Planning --}}
+    <div class="nav-label">Planning</div>
+    <a href="#" class="nav-item {{ request()->routeIs('goals.*') ? 'active' : '' }}">
+        <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+        Savings Goals
+    </a>
+    <a href="{{ route('budgets.index') }}" class="nav-item {{ request()->routeIs('budgets.*') ? 'active' : '' }}">
+        <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14,2 14,8 20,8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        Budgets
+    </a>
+    <a href="{{ route('categories.index') }}" class="nav-item {{ request()->routeIs('categories.*') ? 'active' : '' }}">
+        <svg viewBox="0 0 24 24"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+        Categories
+    </a>
+    <a href="#" class="nav-item {{ request()->routeIs('bills.*') ? 'active' : '' }}">
+        <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        Bills
+    </a>
+
+    {{-- User + logout --}}
+    <div class="sidebar-footer">
+        <div class="user-chip">
+            <div class="user-avatar">{{ strtoupper(substr(Auth::user()->username, 0, 2)) }}</div>
+            <div class="user-info">
+                <div class="user-name">{{ Auth::user()->username }}</div>
+                <div class="user-pts">{{ number_format(Auth::user()->points) }} pts</div>
+            </div>
+            <form method="POST" action="{{ route('logout') }}">
+                @csrf
+                <button type="submit" class="logout-btn" title="Logout">
+                    <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16,17 21,12 16,7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                </button>
+            </form>
+        </div>
+    </div>
+
+</nav>
+
+{{-- ══════════ PAGE CONTENT ══════════ --}}
+@yield('content')
+
+@stack('scripts')
+</body>
+</html>
