@@ -3,60 +3,38 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Models\User;
+use App\Http\Requests\Auth\LoginRequest;
+use App\Http\Requests\Auth\RegisterRequest;
+use App\Services\AuthService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\Rules\Password;
 
 class AuthController extends Controller
 {
-    public function register(Request $request)
+    public function __construct(protected AuthService $authService) {}
+
+    public function register(RegisterRequest $request)
     {
-        $request->validate([
-            'username' => ['required', 'string', 'max:255', 'unique:users'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
-            'password' => ['required', 'confirmed', Password::defaults()],
-        ]);
-
-        $user = User::create([
-            'username' => $request->username,
-            'email' => $request->email,
-            'password' => Hash::make($request->password), 
-            'points' => 0,
-            'current_streak' => 0,
-            'last_activity' => now(),
-        ]);
-
-        Auth::login($user);
+        $this->authService->register($request->validated());
 
         return redirect()->intended('/dashboard');
     }
 
-
-    public function login(Request $request)
+    public function login(LoginRequest $request)
     {
-        $credentials = $request->validate([
-            'email' => ['required', 'email'],
-            'password' => ['required'],
-        ]);
-
-        if (Auth::attempt(['email' => $credentials['email'], 'password' => $credentials['password']])) {
-            $request->session()->regenerate();
-
-            Auth::user()->update(['last_activity' => now()]);
-
-            return redirect()->intended('/dashboard');
+        if (! $this->authService->login($request->validated())) {
+            return back()->withErrors([
+                'email' => 'The provided credentials do not match our records.',
+            ])->onlyInput('email');
         }
 
-        return back()->withErrors([
-            'email' => 'The provided credentials do not match our records.',
-        ])->onlyInput('email');
+        $request->session()->regenerate();
+
+        return redirect()->intended('/dashboard');
     }
 
     public function logout(Request $request)
     {
-        Auth::logout();
+        $this->authService->logout();
 
         $request->session()->invalidate();
         $request->session()->regenerateToken();
