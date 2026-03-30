@@ -8,17 +8,17 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('groups', function (Blueprint $table) {
+        Schema::create('badges', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('owner_id')->constrained('users')->cascadeOnDelete();
-            $table->string('name', 50);
-            $table->string('invite_code', 50)->unique();
+            $table->string('title');
+            $table->string('image_path')->nullable();
+            $table->integer('points_required')->default(0);
             $table->timestamps();
         });
     }
 
     public function down(): void
     {
-        Schema::dropIfExists('groups');
+        Schema::dropIfExists('badges');
     }
 };

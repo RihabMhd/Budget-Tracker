@@ -13,7 +13,7 @@ return new class extends Migration
             $table->foreignId('user_id')->nullable()->constrained()->nullOnDelete();
             $table->string('name', 28);
             $table->string('color', 28)->default('#FBCF97');
-            $table->boolean('is_custom')->default(false);
+            $table->boolean('is_custom')->default(false); 
             $table->timestamps();
         });
     }

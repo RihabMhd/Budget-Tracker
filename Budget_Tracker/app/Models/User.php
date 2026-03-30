@@ -29,24 +29,53 @@ class User extends Authenticatable
         'last_activity'  => 'datetime',
         'points'         => 'integer',
         'current_streak' => 'integer',
+        'monthly_budget' => 'float',      
     ];
+
+    public function transactions()
+    {
+        return $this->hasMany(Transaction::class);
+    }
 
     public function categories()
     {
         return $this->hasMany(Category::class);
     }
 
+    public function goals()
+    {
+        return $this->hasMany(Goal::class);
+    }
 
-    // public function transactions()
-    // {
-    //     return $this->hasMany(Transaction::class);
-    // }
-    // public function goals()
-    // {
-    //     return $this->hasMany(Goal::class);
-    // }
-    // public function badges()
-    // {
-    //     return $this->hasMany(Badge::class);
-    // } 
+    public function budgets()
+    {
+        return $this->hasMany(Budget::class);
+    }
+
+    public function expenseSplits()
+    {
+        return $this->hasMany(ExpenseSplit::class);
+    }
+
+    public function groupMemberships()
+    {
+        return $this->hasMany(GroupMember::class);
+    }
+
+    public function badges()
+    {
+        return $this->belongsToMany(Badge::class, 'badge_user')->withTimestamps();
+    }
+
+    public function groups()
+    {
+        return $this->belongsToMany(Group::class, 'group_members')
+            ->withPivot('role', 'joined_at')
+            ->withTimestamps();
+    }
+
+    public function ownedGroups()
+    {
+        return $this->hasMany(Group::class, 'owner_id');
+    }
 }

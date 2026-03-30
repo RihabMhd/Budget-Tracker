@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Storage;
 
 class Transaction extends Model
 {
@@ -22,7 +23,8 @@ class Transaction extends Model
     ];
 
     protected $casts = [
-        'date' => 'date',
+        'date'   => 'date',
+        'amount' => 'float', 
     ];
 
     public function user()
@@ -35,12 +37,17 @@ class Transaction extends Model
         return $this->belongsTo(Category::class);
     }
 
-    // public function group()
-    // {
-    //     return $this->belongsTo(Group::class);
-    // }
+    public function group()
+    {
+        return $this->belongsTo(Group::class);
+    }
 
-    public function scopeForUser($query, $userId)
+    public function expenseSplits()
+    {
+        return $this->hasMany(ExpenseSplit::class); 
+    }
+
+    public function scopeForUser($query, int $userId)
     {
         return $query->where('user_id', $userId);
     }
@@ -58,7 +65,7 @@ class Transaction extends Model
     public function scopeThisMonth($query)
     {
         return $query->whereMonth('date', Carbon::now()->month)
-            ->whereYear('date', Carbon::now()->year);
+                     ->whereYear('date', Carbon::now()->year);
     }
 
     public function getFormattedAmountAttribute(): string
@@ -70,7 +77,7 @@ class Transaction extends Model
     public function getReceiptUrlAttribute(): ?string
     {
         return $this->receipt_image_path
-            ? \Illuminate\Support\Facades\Storage::url($this->receipt_image_path)
+            ? Storage::url($this->receipt_image_path)
             : null;
     }
 }

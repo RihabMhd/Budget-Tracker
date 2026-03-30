@@ -10,10 +10,14 @@ class Category extends Model
     use HasFactory;
 
     protected $fillable = [
+        'user_id',   
         'name',
         'color',
         'is_custom',
-        'user_id',
+    ];
+
+    protected $casts = [
+        'is_custom' => 'boolean', 
     ];
 
     public function user()
@@ -21,4 +25,13 @@ class Category extends Model
         return $this->belongsTo(User::class);
     }
 
+    public function transactions()
+    {
+        return $this->hasMany(Transaction::class);
+    }
+
+    public function budgets()
+    {
+        return $this->hasMany(Budget::class);
+    }
 }

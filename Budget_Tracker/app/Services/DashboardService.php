@@ -85,47 +85,47 @@ class DashboardService
         return compact('chartMonths', 'chartIncomes', 'chartExpenses');
     }
 
-    // public function getGoalData(int $userId): array
-    // {
-    //     $goal = Goal::where('user_id', $userId)->where('is_active', true)->first();
+    public function getGoalData(int $userId): array
+    {
+        $goal = Goal::where('user_id', $userId)->where('is_active', true)->first();
 
-    //     $goalSaved  = $goal->current_amount ?? 0;
-    //     $goalTarget = $goal->target_amount  ?? 1;
+        $goalSaved  = $goal->current_amount ?? 0;
+        $goalTarget = $goal->target_amount  ?? 1;
 
-    //     return [
-    //         'goal'         => $goal,
-    //         'goalSaved'    => $goalSaved,
-    //         'goalTarget'   => $goalTarget,
-    //         'goalPct'      => $goalTarget > 0 ? min(100, round(($goalSaved / $goalTarget) * 100)) : 0,
-    //         'goalTitle'    => $goal->name ?? 'No active goal',
-    //         'goalDeadline' => $goal?->deadline?->format('M j, Y') ?? null,
-    //     ];
-    // }
+        return [
+            'goal'         => $goal,
+            'goalSaved'    => $goalSaved,
+            'goalTarget'   => $goalTarget,
+            'goalPct'      => $goalTarget > 0 ? min(100, round(($goalSaved / $goalTarget) * 100)) : 0,
+            'goalTitle'    => $goal->name ?? 'No active goal',
+            'goalDeadline' => $goal?->deadline?->format('M j, Y') ?? null,
+        ];
+    }
 
-    // public function getBudgets(int $userId, Carbon $selectedMonth): \Illuminate\Support\Collection
-    // {
-    //     return Budget::where('user_id', $userId)
-    //         ->with('category')
-    //         ->whereHas('category')
-    //         ->get()
-    //         ->map(function ($budget) use ($userId, $selectedMonth) {
-    //             $spent = Transaction::forUser($userId)
-    //                 ->whereYear('date', $selectedMonth->year)
-    //                 ->whereMonth('date', $selectedMonth->month)
-    //                 ->expense()
-    //                 ->where('category_id', $budget->category_id)
-    //                 ->sum('amount');
+    public function getBudgets(int $userId, Carbon $selectedMonth): \Illuminate\Support\Collection
+    {
+        return Budget::where('user_id', $userId)
+            ->with('category')
+            ->whereHas('category')
+            ->get()
+            ->map(function ($budget) use ($userId, $selectedMonth) {
+                $spent = Transaction::forUser($userId)
+                    ->whereYear('date', $selectedMonth->year)
+                    ->whereMonth('date', $selectedMonth->month)
+                    ->expense()
+                    ->where('category_id', $budget->category_id)
+                    ->sum('amount');
 
-    //             return [
-    //                 'category'         => $budget->category,
-    //                 'monthly_limit'    => $budget->monthly_limit,
-    //                 'current_spending' => $spent,
-    //                 'percent_used'     => $budget->monthly_limit > 0
-    //                     ? min(100, round(($spent / $budget->monthly_limit) * 100))
-    //                     : 0,
-    //             ];
-    //         });
-    // }
+                return [
+                    'category'         => $budget->category,
+                    'monthly_limit'    => $budget->monthly_limit,
+                    'current_spending' => $spent,
+                    'percent_used'     => $budget->monthly_limit > 0
+                        ? min(100, round(($spent / $budget->monthly_limit) * 100))
+                        : 0,
+                ];
+            });
+    }
 
     public function getSpendingByCategory(int $userId, Carbon $selectedMonth, float $monthlyExpenses): \Illuminate\Support\Collection
     {
