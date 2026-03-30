@@ -19,8 +19,8 @@ class DashboardController extends Controller
 
         $kpis               = $this->dashboardService->getKpis($user->id, $selectedMonth, $user->monthly_budget ?? 0);
         $chartData          = $this->dashboardService->getBarChartData($user->id, $selectedMonth);
-        // $goalData           = $this->dashboardService->getGoalData($user->id);
-        // $budgets            = $this->dashboardService->getBudgets($user->id, $selectedMonth);
+        $goalData           = $this->dashboardService->getGoalData($user->id);
+        $budgets            = $this->dashboardService->getBudgets($user->id, $selectedMonth);
         $spendingByCategory = $this->dashboardService->getSpendingByCategory($user->id, $selectedMonth, $kpis['monthlyExpenses']);
         $recentTransactions = $this->dashboardService->getRecentTransactions($user->id, $selectedMonth);
         $categories         = $this->dashboardService->getCategories();
@@ -40,19 +40,19 @@ class DashboardController extends Controller
             'chartIncomes'      => $chartData['chartIncomes'],
             'chartExpenses'     => $chartData['chartExpenses'],
 
-            // // Goal
-            // 'goal'              => $goalData['goal'],
-            // 'goalSaved'         => $goalData['goalSaved'],
-            // 'goalTarget'        => $goalData['goalTarget'],
-            // 'goalPct'           => $goalData['goalPct'],
-            // 'goalTitle'         => $goalData['goalTitle'],
-            // 'goalDeadline'      => $goalData['goalDeadline'],
+            // Goal
+            'goal'              => $goalData['goal'],
+            'goalSaved'         => $goalData['goalSaved'],
+            'goalTarget'        => $goalData['goalTarget'],
+            'goalPct'           => $goalData['goalPct'],
+            'goalTitle'         => $goalData['goalTitle'],
+            'goalDeadline'      => $goalData['goalDeadline'],
 
-            // // Budgets & categories
-            // 'budgets'            => $budgets,
-            // 'spendingByCategory' => $spendingByCategory,
-            // 'categories'         => $categories,
-            // 'recentTransactions' => $recentTransactions,
+            // Budgets & categories
+            'budgets'            => $budgets,
+            'spendingByCategory' => $spendingByCategory,
+            'categories'         => $categories,
+            'recentTransactions' => $recentTransactions,
 
             // Month navigation
             'selectedMonth'     => $selectedMonth,

@@ -6,9 +6,6 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('users', function (Blueprint $table) {
@@ -22,13 +19,11 @@ return new class extends Migration
             $table->decimal('monthly_budget', 10, 2)->nullable()->default(null);
             $table->integer('current_streak')->default(0);
             $table->timestamp('last_activity')->nullable()->useCurrent();
+            $table->rememberToken(); 
             $table->timestamps();
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('users');
