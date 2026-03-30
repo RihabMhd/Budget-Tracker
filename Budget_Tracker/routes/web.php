@@ -40,6 +40,7 @@ Route::middleware('guest')->group(function () {
 // Authenticated only
 Route::middleware('auth')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     Route::get('/profile',           [ProfileController::class, 'show'])->name('profile.show');
     Route::patch('/profile',         [ProfileController::class, 'update'])->name('profile.update');

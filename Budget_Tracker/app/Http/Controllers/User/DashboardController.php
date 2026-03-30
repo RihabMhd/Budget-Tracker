@@ -1,0 +1,64 @@
+<?php
+
+namespace App\Http\Controllers\User;
+
+use App\Http\Controllers\Controller;
+use App\Services\DashboardService;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Carbon\Carbon;
+
+class DashboardController extends Controller
+{
+    public function __construct(protected DashboardService $dashboardService) {}
+
+    public function index(Request $request)
+    {
+        $user          = Auth::user();
+        $selectedMonth = $this->dashboardService->resolveSelectedMonth($request->get('month'));
+
+        $kpis               = $this->dashboardService->getKpis($user->id, $selectedMonth, $user->monthly_budget ?? 0);
+        $chartData          = $this->dashboardService->getBarChartData($user->id, $selectedMonth);
+        // $goalData           = $this->dashboardService->getGoalData($user->id);
+        // $budgets            = $this->dashboardService->getBudgets($user->id, $selectedMonth);
+        $spendingByCategory = $this->dashboardService->getSpendingByCategory($user->id, $selectedMonth, $kpis['monthlyExpenses']);
+        $recentTransactions = $this->dashboardService->getRecentTransactions($user->id, $selectedMonth);
+        $categories         = $this->dashboardService->getCategories();
+
+        return view('dashboard.index', [
+            // KPIs
+            'startingAllowance' => $user->monthly_budget ?? 0,
+            'monthlyIncome'     => $kpis['monthlyIncome'],
+            'monthlyExpenses'   => $kpis['monthlyExpenses'],
+            'remainingWallet'   => $kpis['remainingWallet'],
+            'spentPercentage'   => $kpis['spentPercentage'],
+            'totalBalance'      => $kpis['totalBalance'],
+            'savingsRate'       => $kpis['savingsRate'],
+
+            // Chart
+            'chartMonths'       => $chartData['chartMonths'],
+            'chartIncomes'      => $chartData['chartIncomes'],
+            'chartExpenses'     => $chartData['chartExpenses'],
+
+            // // Goal
+            // 'goal'              => $goalData['goal'],
+            // 'goalSaved'         => $goalData['goalSaved'],
+            // 'goalTarget'        => $goalData['goalTarget'],
+            // 'goalPct'           => $goalData['goalPct'],
+            // 'goalTitle'         => $goalData['goalTitle'],
+            // 'goalDeadline'      => $goalData['goalDeadline'],
+
+            // // Budgets & categories
+            // 'budgets'            => $budgets,
+            // 'spendingByCategory' => $spendingByCategory,
+            // 'categories'         => $categories,
+            // 'recentTransactions' => $recentTransactions,
+
+            // Month navigation
+            'selectedMonth'     => $selectedMonth,
+            'prevMonth'         => $selectedMonth->copy()->subMonth()->format('Y-m'),
+            'nextMonth'         => $selectedMonth->copy()->addMonth()->format('Y-m'),
+            'isCurrentMonth'    => $selectedMonth->isSameMonth(Carbon::now()),
+        ]);
+    }
+}
