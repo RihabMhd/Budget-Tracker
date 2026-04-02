@@ -21,15 +21,17 @@ class ProfileController extends Controller
         $totalIncome    = 0; // income concept removed
         $netWorth       = -$totalExpenses;
 
-        // $goalsCount     = $user->goals()->count();
-        // $goalsCompleted = $user->goals()->where('status', 'completed')->count();
+        $goalsCount     = $user->goals()->count();
+        $goalsCompleted = $user->goals()
+            ->whereRaw('current_amount >= target_amount')
+            ->count();
 
         $badges             = $user->badges;
         $recentTransactions = $user->transactions()
-                                   ->with('category')
-                                   ->latest('date')
-                                   ->take(5)
-                                   ->get();
+            ->with('category')
+            ->latest('date')
+            ->take(5)
+            ->get();
 
         return view('profile.show', compact(
             'user',
@@ -37,8 +39,8 @@ class ProfileController extends Controller
             'totalIncome',
             'totalExpenses',
             'netWorth',
-            // 'goalsCount',
-            // 'goalsCompleted',
+            'goalsCount',
+            'goalsCompleted',
             'badges',
             'recentTransactions',
         ));
