@@ -1,114 +1,101 @@
-/**
- * Transaction Management JS
- * Handles Modals, Type Selection, and Custom Category Dropdowns
- */
+// ── Modal helpers ──────────────────────────────────────────────
+function openModal(id) {
+    const el = document.getElementById(id);
+    if (el) el.classList.remove('hidden');
+}
 
-document.addEventListener('DOMContentLoaded', function () {
+function closeModal(id) {
+    const el = document.getElementById(id);
+    if (el) el.classList.add('hidden');
+}
 
-    // --- 1. Modal Logic ---
-    
-    window.openModal = function (id) {
-        const modal = document.getElementById(id);
-        if (modal) {
-            modal.classList.remove('hidden');
-            // Prevent background scrolling when modal is active
-            document.body.style.overflow = 'hidden';
-        }
-    };
+// ── Category dropdown helpers ──────────────────────────────────
+function selectCat(target, id, name, color, dashed) {
+    const dot   = document.getElementById(`${target}-cat-dot`);
+    const label = document.getElementById(`${target}-cat-label`);
+    const input = document.getElementById(`${target}-cat-input`);
 
-    window.closeModal = function (id) {
-        const modal = document.getElementById(id);
-        if (modal) {
-            modal.classList.add('hidden');
-            // Restore scrolling
-            document.body.style.overflow = '';
-        }
-    };
+    if (dot) {
+        dot.style.background = dashed ? 'transparent' : color;
+        dot.style.border     = dashed ? '1.5px dashed #ccc' : 'none';
+    }
+    if (label) label.textContent = name;
+    if (input) input.value = id;
 
-    // --- 2. Transaction Type Toggle (Income/Expense) ---
+    // Close dropdown
+    const dropdown = document.getElementById(`${target}-cat-dropdown`);
+    if (dropdown) dropdown.classList.add('hidden');
+}
 
-    window.setType = function (val) {
-        const input = document.getElementById('type-input');
-        const expOpt = document.getElementById('opt-expense');
-        const incOpt = document.getElementById('opt-income');
+// ── Boot ───────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
 
-        if (input) {
-            input.value = val;
-        }
+    // Open modal  [data-open-modal="modal-id"]
+    document.querySelectorAll('[data-open-modal]').forEach(btn => {
+        btn.addEventListener('click', () => openModal(btn.dataset.openModal));
+    });
 
-        // Update UI states based on selection
-        if (expOpt && incOpt) {
-            expOpt.className = 'type-opt' + (val === 'Expense' ? ' active-expense' : '');
-            incOpt.className = 'type-opt' + (val === 'Income' ? ' active-income' : '');
-        }
-    };
+    // Close modal  [data-close-modal="modal-id"]
+    document.querySelectorAll('[data-close-modal]').forEach(btn => {
+        btn.addEventListener('click', () => closeModal(btn.dataset.closeModal));
+    });
 
-    // --- 3. Custom Category Select Dropdown ---
+    // Click overlay to dismiss  [data-dismiss-modal="modal-id"]
+    document.querySelectorAll('[data-dismiss-modal]').forEach(overlay => {
+        overlay.addEventListener('click', e => {
+            if (e.target === overlay) closeModal(overlay.dataset.dismissModal);
+        });
+    });
 
-    window.toggleCatDropdown = function (prefix) {
-        const dropdown = document.getElementById(prefix + '-cat-dropdown');
-        const trigger = document.getElementById(prefix + '-cat-trigger');
-        
-        if (!dropdown || !trigger) return;
-
-        const isOpen = !dropdown.classList.contains('hidden');
-
-        // Close all other open dropdowns first to avoid overlaps
-        document.querySelectorAll('.cat-select-dropdown').forEach(d => d.classList.add('hidden'));
-        document.querySelectorAll('.cat-select-trigger').forEach(t => t.classList.remove('open'));
-
-        if (!isOpen) {
-            dropdown.classList.remove('hidden');
-            trigger.classList.add('open');
-        }
-    };
-
-    window.selectCat = function (prefix, id, name, color, isDashed) {
-        const input = document.getElementById(prefix + '-cat-input');
-        const label = document.getElementById(prefix + '-cat-label');
-        const dot = document.getElementById(prefix + '-cat-dot');
-        const dropdown = document.getElementById(prefix + '-cat-dropdown');
-        const trigger = document.getElementById(prefix + '-cat-trigger');
-
-        // Set hidden input value for the form
-        if (input) input.value = id;
-        
-        // Update trigger UI
-        if (label) label.textContent = name;
-        
-        if (dot) {
-            dot.style.background = isDashed ? 'transparent' : color;
-            dot.style.border = isDashed ? '1.5px dashed #ccc' : 'none';
-        }
-
-        // Close dropdown
-        if (dropdown) dropdown.classList.add('hidden');
-        if (trigger) trigger.classList.remove('open');
-    };
-
-    // --- 4. Global Click Listener (Close dropdowns when clicking outside) ---
-
-    document.addEventListener('click', function (e) {
-        // If the click is not inside the category wrapper, close all dropdowns
-        if (!e.target.closest('.cat-select-wrap')) {
-            document.querySelectorAll('.cat-select-dropdown').forEach(d => {
-                d.classList.add('hidden');
-            });
-            document.querySelectorAll('.cat-select-trigger').forEach(t => {
-                t.classList.remove('open');
-            });
+    // Escape key closes any open modal
+    document.addEventListener('keydown', e => {
+        if (e.key === 'Escape') {
+            document.querySelectorAll('.modal-overlay:not(.hidden)').forEach(m => closeModal(m.id));
         }
     });
 
-    // --- 5. Image Preview (Optional Improvement) ---
-    // If you have an input with id "receipt_image", this shows a preview
-    const imageInput = document.querySelector('input[name="receipt_image"]');
-    if (imageInput) {
-        imageInput.addEventListener('change', function() {
-            if (this.files && this.files[0]) {
-                console.log("File selected: " + this.files[0].name);
-                // You can add logic here to show a thumbnail preview in the modal
+    // Re-open modal on validation error
+    const reopenTrigger = document.querySelector('[data-reopen-modal]');
+    if (reopenTrigger) openModal(reopenTrigger.dataset.reopenModal);
+
+    // Category dropdown toggles  [data-toggle-dropdown="dropdown-id"]
+    document.querySelectorAll('[data-toggle-dropdown]').forEach(trigger => {
+        trigger.addEventListener('click', () => {
+            const dropdown = document.getElementById(trigger.dataset.toggleDropdown);
+            if (dropdown) dropdown.classList.toggle('hidden');
+        });
+    });
+
+    // Category option selection  [data-cat-target data-cat-id data-cat-name data-cat-color data-cat-dashed]
+    document.querySelectorAll('.cat-option[data-cat-target]').forEach(option => {
+        option.addEventListener('click', () => {
+            selectCat(
+                option.dataset.catTarget,
+                option.dataset.catId,
+                option.dataset.catName,
+                option.dataset.catColor,
+                option.dataset.catDashed === 'true'
+            );
+        });
+    });
+
+    // Close category dropdowns when clicking outside
+    document.addEventListener('click', e => {
+        document.querySelectorAll('.cat-select-dropdown:not(.hidden)').forEach(dropdown => {
+            const wrap = dropdown.closest('.cat-select-wrap');
+            if (wrap && !wrap.contains(e.target)) {
+                dropdown.classList.add('hidden');
             }
         });
-    }
+    });
+
+    // Delete form submit via button  [data-submit-form="form-id"]
+    document.querySelectorAll('[data-submit-form]').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const form = document.getElementById(btn.dataset.submitForm);
+            if (form && confirm('Permanently delete this expense?')) {
+                form.submit();
+            }
+        });
+    });
 });

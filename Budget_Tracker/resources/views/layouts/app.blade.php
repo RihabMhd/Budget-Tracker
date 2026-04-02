@@ -49,7 +49,7 @@
         </a>
 
         <div class="nav-label">Overview</div>
-        <a href="#" class="nav-item {{ request()->routeIs('dashboard') ? 'active' : '' }}">
+        <a href="{{route('dashboard')}}" class="nav-item {{ request()->routeIs('dashboard') ? 'active' : '' }}">
             <svg viewBox="0 0 24 24">
                 <rect x="3" y="3" width="7" height="7" rx="1" />
                 <rect x="14" y="3" width="7" height="7" rx="1" />
