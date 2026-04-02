@@ -30,9 +30,9 @@
                 <div class="hero-pill green">🔥 {{ $user->current_streak }}-day streak</div>
                 @endif
                 <div class="hero-pill">📊 {{ $txCount }} transactions</div>
-                {{-- @if($goalsCompleted > 0)
+                @if($goalsCompleted > 0)
                 <div class="hero-pill green">🏆 {{ $goalsCompleted }} {{ Str::plural('goal', $goalsCompleted) }} achieved</div>
-                @endif --}}
+                @endif
             </div>
         </div>
     </div>
@@ -56,13 +56,13 @@
             <div class="mini-stat-value">${{ number_format($totalExpenses, 2) }}</div>
             <div class="mini-stat-sub">All time</div>
         </div>
-        {{-- <div class="mini-stat">
+        <div class="mini-stat">
             <div class="mini-stat-label">Goals</div>
             <div class="mini-stat-value">
                 {{ $goalsCompleted }}<span style="font-size:14px;color:#bbb;font-weight:500;"> / {{ $goalsCount }}</span>
             </div>
             <div class="mini-stat-sub">Completed</div>
-        </div> --}}
+        </div>
     </div>
 
     {{-- Two-col --}}

@@ -19,6 +19,7 @@ use App\Http\Controllers\User\DashboardController;
 use App\Http\Controllers\Profile\ProfileController;
 use App\Http\Controllers\User\BudgetController;
 use App\Http\Controllers\User\CategoryController;
+use App\Http\Controllers\User\GoalController;
 
 Route::get('/', function () {
     return view('auth.login');
@@ -56,4 +57,12 @@ Route::middleware('auth')->group(function () {
     Route::get('/transactions/{transaction}/edit', [TransactionController::class, 'edit'])->name('transactions.edit');
     Route::put('/transactions/{transaction}',      [TransactionController::class, 'update'])->name('transactions.update');
     Route::delete('/transactions/{transaction}',      [TransactionController::class, 'destroy'])->name('transactions.destroy');
+
+    Route::get('/goals',               [GoalController::class, 'index'])->name('goals.index');
+    Route::get('/goals/create',        [GoalController::class, 'create'])->name('goals.create');
+    Route::post('/goals',              [GoalController::class, 'store'])->name('goals.store');
+    Route::get('/goals/{goal}/edit',   [GoalController::class, 'edit'])->name('goals.edit');
+    Route::put('/goals/{goal}',        [GoalController::class, 'update'])->name('goals.update');
+    Route::delete('/goals/{goal}',     [GoalController::class, 'destroy'])->name('goals.destroy');
+    Route::post('/goals/{goal}/funds', [GoalController::class, 'addFunds'])->name('goals.funds');
 });
