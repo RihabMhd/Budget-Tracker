@@ -13,22 +13,17 @@ use Illuminate\Support\Facades\Auth;
 
 class TransactionController extends Controller
 {
-    protected $transactionService;
-
-    public function __construct(TransactionService $transactionService)
-    {
-        $this->transactionService = $transactionService;
-    }
+    public function __construct(protected TransactionService $transactionService) {}
 
     public function index(Request $request)
     {
         $transactions = Transaction::with('category')
             ->where('user_id', Auth::id())
-            ->when($request->type, fn($q) => $q->where('type', $request->type))
+            // 'type' filter removed — all transactions are expenses
             ->when($request->category_id, fn($q) => $q->where('category_id', $request->category_id))
-            ->when($request->date_from, fn($q) => $q->where('date', '>=', $request->date_from))
-            ->when($request->date_to, fn($q) => $q->where('date', '<=', $request->date_to))
-            ->when($request->search, fn($q) => $q->where('description', 'like', "%{$request->search}%"))
+            ->when($request->date_from,   fn($q) => $q->where('date', '>=', $request->date_from))
+            ->when($request->date_to,     fn($q) => $q->where('date', '<=', $request->date_to))
+            ->when($request->search,      fn($q) => $q->where('description', 'like', "%{$request->search}%"))
             ->orderBy('date', 'desc')
             ->orderBy('created_at', 'desc')
             ->paginate(15)
@@ -46,7 +41,7 @@ class TransactionController extends Controller
             $request->file('receipt_image')
         );
 
-        return redirect()->back()->with('success', 'Transaction added successfully!');
+        return redirect()->back()->with('success', 'Expense added successfully!');
     }
 
     public function edit(Transaction $transaction)
@@ -59,6 +54,8 @@ class TransactionController extends Controller
 
     public function update(UpdateTransactionRequest $request, Transaction $transaction)
     {
+        if ($transaction->user_id !== Auth::id()) abort(403);
+
         $this->transactionService->updateTransaction(
             $transaction,
             $request->validated(),
@@ -66,7 +63,7 @@ class TransactionController extends Controller
             $request->boolean('remove_receipt')
         );
 
-        return redirect()->route('transactions.index')->with('success', 'Transaction updated!');
+        return redirect()->route('transactions.index')->with('success', 'Expense updated!');
     }
 
     public function destroy(Transaction $transaction)
@@ -75,6 +72,6 @@ class TransactionController extends Controller
 
         $this->transactionService->deleteTransaction($transaction);
 
-        return redirect()->back()->with('success', 'Transaction deleted.');
+        return redirect()->back()->with('success', 'Expense deleted.');
     }
 }

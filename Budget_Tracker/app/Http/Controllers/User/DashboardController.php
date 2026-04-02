@@ -14,11 +14,12 @@ class DashboardController extends Controller
 
     public function index(Request $request)
     {
-        $user          = Auth::user();
-        $selectedMonth = $this->dashboardService->resolveSelectedMonth($request->get('month'));
+        $user             = Auth::user();
+        $monthlyAllowance = (float) ($user->monthly_budget ?? 0);
+        $selectedMonth    = $this->dashboardService->resolveSelectedMonth($request->get('month'));
 
-        $kpis               = $this->dashboardService->getKpis($user->id, $selectedMonth, $user->monthly_budget ?? 0);
-        $chartData          = $this->dashboardService->getBarChartData($user->id, $selectedMonth);
+        $kpis               = $this->dashboardService->getKpis($user->id, $selectedMonth, $monthlyAllowance);
+        $chartData          = $this->dashboardService->getBarChartData($user->id, $selectedMonth, $monthlyAllowance);
         $goalData           = $this->dashboardService->getGoalData($user->id);
         $budgets            = $this->dashboardService->getBudgets($user->id, $selectedMonth);
         $spendingByCategory = $this->dashboardService->getSpendingByCategory($user->id, $selectedMonth, $kpis['monthlyExpenses']);
@@ -26,19 +27,17 @@ class DashboardController extends Controller
         $categories         = $this->dashboardService->getCategories();
 
         return view('dashboard.index', [
-            // KPIs
-            'startingAllowance' => $user->monthly_budget ?? 0,
-            'monthlyIncome'     => $kpis['monthlyIncome'],
+            // Allowance & spending
+            'monthlyAllowance'  => $monthlyAllowance,
             'monthlyExpenses'   => $kpis['monthlyExpenses'],
-            'remainingWallet'   => $kpis['remainingWallet'],
+            'remaining'         => $kpis['remaining'],
             'spentPercentage'   => $kpis['spentPercentage'],
-            'totalBalance'      => $kpis['totalBalance'],
-            'savingsRate'       => $kpis['savingsRate'],
+            'totalSpentAllTime' => $kpis['totalSpentAllTime'],
 
             // Chart
             'chartMonths'       => $chartData['chartMonths'],
-            'chartIncomes'      => $chartData['chartIncomes'],
             'chartExpenses'     => $chartData['chartExpenses'],
+            'chartAllowances'   => $chartData['chartAllowances'],
 
             // Goal
             'goal'              => $goalData['goal'],

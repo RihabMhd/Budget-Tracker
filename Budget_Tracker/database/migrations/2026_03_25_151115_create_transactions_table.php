@@ -13,10 +13,9 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->foreignId('category_id')->nullable()->constrained()->nullOnDelete();
             $table->foreignId('group_id')->nullable()->constrained()->nullOnDelete();
-            $table->decimal('amount', 10, 2);                        
-            $table->date('date');                                      
-            $table->string('description')->nullable();              
-            $table->enum('type', ['Income', 'Expense']);
+            $table->decimal('amount', 10, 2);
+            $table->date('date');
+            $table->string('description')->nullable();
             $table->string('receipt_image_path')->nullable();
             $table->timestamps();
         });

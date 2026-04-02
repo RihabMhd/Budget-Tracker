@@ -21,7 +21,6 @@ class DashboardService
             $selectedMonth = Carbon::now()->startOfMonth();
         }
 
-        // Clamp: don't allow future months
         if ($selectedMonth->gt(Carbon::now()->startOfMonth())) {
             $selectedMonth = Carbon::now()->startOfMonth();
         }
@@ -29,60 +28,53 @@ class DashboardService
         return $selectedMonth;
     }
 
-    public function getKpis(int $userId, Carbon $selectedMonth, float $startingAllowance): array
+    public function getKpis(int $userId, Carbon $selectedMonth, float $monthlyAllowance): array
     {
-        $monthlyIncome = Transaction::forUser($userId)
-            ->whereYear('date', $selectedMonth->year)
-            ->whereMonth('date', $selectedMonth->month)
-            ->income()
-            ->sum('amount');
-
+        // Total spent this month
         $monthlyExpenses = Transaction::forUser($userId)
             ->whereYear('date', $selectedMonth->year)
             ->whereMonth('date', $selectedMonth->month)
-            ->expense()
             ->sum('amount');
 
-        $totalBalance = Transaction::forUser($userId)->income()->sum('amount')
-            - Transaction::forUser($userId)->expense()->sum('amount');
+        // Remaining = allowance - what was spent this month
+        $remaining = $monthlyAllowance - $monthlyExpenses;
+
+        // % of allowance spent
+        $spentPercentage = $monthlyAllowance > 0
+            ? ($monthlyExpenses / $monthlyAllowance) * 100
+            : 0;
+
+        // All-time remaining (sum of all allowances - all expenses)
+        // We approximate as: total allowance across all months user has been active
+        // minus total expenses ever recorded
+        $totalExpensesAllTime = Transaction::forUser($userId)->sum('amount');
 
         return [
-            'monthlyIncome'    => $monthlyIncome,
-            'monthlyExpenses'  => $monthlyExpenses,
-            'remainingWallet'  => $startingAllowance - $monthlyExpenses,
-            'spentPercentage'  => $startingAllowance > 0
-                ? ($monthlyExpenses / $startingAllowance) * 100
-                : 0,
-            'totalBalance'     => $totalBalance,
-            'savingsRate'      => $monthlyIncome > 0
-                ? round((($monthlyIncome - $monthlyExpenses) / $monthlyIncome) * 100)
-                : 0,
+            'monthlyExpenses' => $monthlyExpenses,
+            'remaining'       => $remaining,
+            'spentPercentage' => $spentPercentage,
+            'totalSpentAllTime' => $totalExpensesAllTime,
         ];
     }
 
-    public function getBarChartData(int $userId, Carbon $selectedMonth): array
+    public function getBarChartData(int $userId, Carbon $selectedMonth, float $monthlyAllowance): array
     {
         $chartMonths   = [];
-        $chartIncomes  = [];
         $chartExpenses = [];
+        $chartAllowances = [];
 
         for ($i = 8; $i >= 0; $i--) {
             $month = $selectedMonth->copy()->subMonths($i);
 
-            $chartMonths[]   = $month->format('M');
-            $chartIncomes[]  = (float) Transaction::forUser($userId)
+            $chartMonths[]     = $month->format('M');
+            $chartExpenses[]   = (float) Transaction::forUser($userId)
                 ->whereYear('date', $month->year)
                 ->whereMonth('date', $month->month)
-                ->income()
                 ->sum('amount');
-            $chartExpenses[] = (float) Transaction::forUser($userId)
-                ->whereYear('date', $month->year)
-                ->whereMonth('date', $month->month)
-                ->expense()
-                ->sum('amount');
+            $chartAllowances[] = $monthlyAllowance; // flat line showing the budget ceiling
         }
 
-        return compact('chartMonths', 'chartIncomes', 'chartExpenses');
+        return compact('chartMonths', 'chartExpenses', 'chartAllowances');
     }
 
     public function getGoalData(int $userId): array
@@ -112,7 +104,6 @@ class DashboardService
                 $spent = Transaction::forUser($userId)
                     ->whereYear('date', $selectedMonth->year)
                     ->whereMonth('date', $selectedMonth->month)
-                    ->expense()
                     ->where('category_id', $budget->category_id)
                     ->sum('amount');
 
@@ -132,7 +123,6 @@ class DashboardService
         return Transaction::forUser($userId)
             ->whereYear('date', $selectedMonth->year)
             ->whereMonth('date', $selectedMonth->month)
-            ->expense()
             ->whereNotNull('category_id')
             ->select('category_id', DB::raw('SUM(amount) as total'))
             ->groupBy('category_id')

@@ -12,37 +12,37 @@ class ProfileController extends Controller
 {
     public function __construct(protected ProfileService $profileService) {}
 
-    // public function show()
-    // {
-    //     $user = Auth::user();
+    public function show()
+    {
+        $user = Auth::user();
 
-    //     $txCount        = $user->transactions()->count();
-    //     $totalIncome    = $user->transactions()->where('type', 'Income')->sum('amount');
-    //     $totalExpenses  = $user->transactions()->where('type', 'Expense')->sum('amount');
-    //     $netWorth       = $totalIncome - $totalExpenses;
+        $txCount        = $user->transactions()->count();
+        $totalExpenses  = $user->transactions()->sum('amount'); // all transactions are expenses
+        $totalIncome    = 0; // income concept removed
+        $netWorth       = -$totalExpenses;
 
-    //     $goalsCount     = $user->goals()->count();
-    //     $goalsCompleted = $user->goals()->where('status', 'completed')->count();
+        // $goalsCount     = $user->goals()->count();
+        // $goalsCompleted = $user->goals()->where('status', 'completed')->count();
 
-    //     $badges             = $user->badges;
-    //     $recentTransactions = $user->transactions()
-    //                                ->with('category')
-    //                                ->latest('date')
-    //                                ->take(5)
-    //                                ->get();
+        $badges             = $user->badges;
+        $recentTransactions = $user->transactions()
+                                   ->with('category')
+                                   ->latest('date')
+                                   ->take(5)
+                                   ->get();
 
-    //     return view('profile.show', compact(
-    //         'user',
-    //         'txCount',
-    //         'totalIncome',
-    //         'totalExpenses',
-    //         'netWorth',
-    //         'goalsCount',
-    //         'goalsCompleted',
-    //         'badges',
-    //         'recentTransactions',
-    //     ));
-    // }
+        return view('profile.show', compact(
+            'user',
+            'txCount',
+            'totalIncome',
+            'totalExpenses',
+            'netWorth',
+            // 'goalsCount',
+            // 'goalsCompleted',
+            'badges',
+            'recentTransactions',
+        ));
+    }
 
     public function update(UpdateProfileRequest $request)
     {

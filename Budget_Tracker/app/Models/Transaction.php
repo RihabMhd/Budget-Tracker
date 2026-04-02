@@ -18,13 +18,12 @@ class Transaction extends Model
         'amount',
         'date',
         'description',
-        'type',
         'receipt_image_path',
     ];
 
     protected $casts = [
         'date'   => 'date',
-        'amount' => 'float', 
+        'amount' => 'float',
     ];
 
     public function user()
@@ -44,22 +43,12 @@ class Transaction extends Model
 
     public function expenseSplits()
     {
-        return $this->hasMany(ExpenseSplit::class); 
+        return $this->hasMany(ExpenseSplit::class);
     }
 
     public function scopeForUser($query, int $userId)
     {
         return $query->where('user_id', $userId);
-    }
-
-    public function scopeIncome($query)
-    {
-        return $query->where('type', 'Income');
-    }
-
-    public function scopeExpense($query)
-    {
-        return $query->where('type', 'Expense');
     }
 
     public function scopeThisMonth($query)
@@ -70,8 +59,7 @@ class Transaction extends Model
 
     public function getFormattedAmountAttribute(): string
     {
-        $prefix = $this->type === 'Income' ? '+' : '-';
-        return $prefix . '$' . number_format($this->amount, 2);
+        return '−$' . number_format($this->amount, 2);
     }
 
     public function getReceiptUrlAttribute(): ?string
