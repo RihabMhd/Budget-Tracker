@@ -14,11 +14,12 @@ class ProfileController extends Controller
 
     public function show()
     {
-        $user = Auth::user();
+        // Load user with badges to avoid extra queries in the view
+        $user = Auth::user()->load('badges');
 
         $txCount        = $user->transactions()->count();
-        $totalExpenses  = $user->transactions()->sum('amount'); // all transactions are expenses
-        $totalIncome    = 0; // income concept removed
+        $totalExpenses  = $user->transactions()->sum('amount'); 
+        $totalIncome    = 0; 
         $netWorth       = -$totalExpenses;
 
         $goalsCount     = $user->goals()->count();
@@ -26,6 +27,7 @@ class ProfileController extends Controller
             ->whereRaw('current_amount >= target_amount')
             ->count();
 
+        // Pass the earned badges collection
         $badges             = $user->badges;
         $recentTransactions = $user->transactions()
             ->with('category')
@@ -49,14 +51,12 @@ class ProfileController extends Controller
     public function update(UpdateProfileRequest $request)
     {
         $this->profileService->updateProfile(Auth::user(), $request->validated());
-
         return back()->with('success', 'Profile updated successfully.');
     }
 
     public function updatePassword(UpdatePasswordRequest $request)
     {
         $this->profileService->updatePassword(Auth::user(), $request->validated()['password']);
-
         return back()->with('success', 'Password changed successfully.');
     }
 }

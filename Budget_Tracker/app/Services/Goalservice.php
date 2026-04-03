@@ -54,13 +54,16 @@ class GoalService
         $justCompleted = !$wasComplete && ($goal->current_amount >= $goal->target_amount);
 
         if ($justCompleted) {
-            $user = $goal->user; 
+            $user = $goal->user;
             $user->increment('points', 50);
+            $badgeService = app(BadgeService::class);
+            $newBadges = $badgeService->checkAndAward($user);
         }
 
         return [
             'goal'          => $goal,
             'justCompleted' => $justCompleted,
+            'newBadges' => $newBadges
         ];
     }
 
