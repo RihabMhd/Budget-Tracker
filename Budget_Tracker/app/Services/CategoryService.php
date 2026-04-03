@@ -8,6 +8,17 @@ use Illuminate\Database\Eloquent\Collection;
 
 class CategoryService
 {
+
+    public function getAllForUser(User $user): \Illuminate\Support\Collection
+    {
+        return Category::where(function ($q) use ($user) {
+            $q->whereNull('user_id')
+              ->orWhere('user_id', $user->id);
+        })
+        ->orderBy('name')
+        ->get();
+    }
+
     public function getForUser(User $user): array
     {
         $systemCategories = Category::whereNull('user_id')
