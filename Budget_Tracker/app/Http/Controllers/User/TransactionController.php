@@ -19,7 +19,6 @@ class TransactionController extends Controller
     {
         $transactions = Transaction::with('category')
             ->where('user_id', Auth::id())
-            // 'type' filter removed — all transactions are expenses
             ->when($request->category_id, fn($q) => $q->where('category_id', $request->category_id))
             ->when($request->date_from,   fn($q) => $q->where('date', '>=', $request->date_from))
             ->when($request->date_to,     fn($q) => $q->where('date', '<=', $request->date_to))
@@ -40,6 +39,13 @@ class TransactionController extends Controller
             $request->validated(),
             $request->file('receipt_image')
         );
+
+        if (!empty($result['newBadges'])) {
+            $latest = end($result['newBadges']);
+            return redirect()->route('transactions.index')
+                ->with('success', 'Transaction saved!')
+                ->with('badge_unlocked', $latest->title);
+        }
 
         return redirect()->back()->with('success', 'Expense added successfully!');
     }

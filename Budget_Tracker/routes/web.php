@@ -46,6 +46,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile',           [ProfileController::class, 'show'])->name('profile.show');
     Route::patch('/profile',         [ProfileController::class, 'update'])->name('profile.update');
     Route::patch('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password');
+    Route::patch('/profile/avatar', [ProfileController::class, 'updateAvatar'])->name('profile.avatar');
+    Route::patch('/profile/budget', [ProfileController::class, 'updateBudget'])->name('profile.budget');
 
     Route::get('/categories',              [CategoryController::class, 'index'])->name('categories.index');
     Route::post('/categories',             [CategoryController::class, 'store'])->name('categories.store');
