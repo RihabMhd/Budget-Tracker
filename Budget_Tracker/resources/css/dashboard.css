@@ -324,8 +324,8 @@ h3,
     display: flex;
     align-items: flex-end;
     gap: 10px;
-    height: 140px;
-    padding-bottom: 8px;
+    height: 120px;
+    padding-bottom: 0;
 }
 
 .bar-group {
@@ -334,6 +334,8 @@ h3,
     align-items: center;
     flex: 1;
     gap: 6px;
+    height: 100%;
+    justify-content: flex-end;
 }
 
 .bar-wrap {
@@ -341,7 +343,7 @@ h3,
     display: flex;
     gap: 3px;
     align-items: flex-end;
-    height: 120px;
+    flex: 1;
 }
 
 .bar {

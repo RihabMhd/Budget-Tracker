@@ -163,7 +163,7 @@
                 <div class="bar-chart">
                     @foreach($chartMonths as $i => $month)
                         @php
-                            $expH   = max(2, round(($chartExpenses[$i] / $maxVal) * 110));
+                            $expH   = max(4, round(($chartExpenses[$i] / $maxVal) * 110));
                             $isLast = $i === count($chartMonths) - 1;
                         @endphp
                         <div class="bar-group">

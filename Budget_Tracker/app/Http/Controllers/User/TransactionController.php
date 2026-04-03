@@ -8,12 +8,16 @@ use App\Models\Category;
 use App\Http\Requests\Transaction\StoreTransactionRequest;
 use App\Http\Requests\Transaction\UpdateTransactionRequest;
 use App\Services\TransactionService;
+use App\Services\CategoryService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class TransactionController extends Controller
 {
-    public function __construct(protected TransactionService $transactionService) {}
+    public function __construct(
+        protected TransactionService $transactionService,
+        protected CategoryService $categoryService,
+    ) {}
 
     public function index(Request $request)
     {
@@ -28,7 +32,7 @@ class TransactionController extends Controller
             ->paginate(15)
             ->withQueryString();
 
-        $categories = Category::orderBy('name')->get();
+        $categories = $this->categoryService->getAllForUser(Auth::user());
 
         return view('transactions.index', compact('transactions', 'categories'));
     }
@@ -54,7 +58,7 @@ class TransactionController extends Controller
     {
         if ($transaction->user_id !== Auth::id()) abort(403);
 
-        $categories = Category::orderBy('name')->get();
+        $categories = $this->categoryService->getAllForUser(Auth::user());
         return view('transactions.edit', compact('transaction', 'categories'));
     }
 
