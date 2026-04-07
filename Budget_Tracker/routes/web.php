@@ -20,6 +20,7 @@ use App\Http\Controllers\Profile\ProfileController;
 use App\Http\Controllers\User\BudgetController;
 use App\Http\Controllers\User\CategoryController;
 use App\Http\Controllers\User\GoalController;
+use App\Http\Controllers\User\AnalyticsController;
 
 Route::get('/', function () {
     return view('auth.login');
@@ -73,4 +74,6 @@ Route::middleware('auth')->group(function () {
     Route::delete('/budgets/{budget}', [BudgetController::class, 'destroy'])->name('budgets.destroy');
     Route::post('/budgets/monthly',     [BudgetController::class, 'storeMonthly'])->name('budgets.storeMonthly');
     Route::post('/budgets/category',    [BudgetController::class, 'storeCategory'])->name('budgets.storeCategory');
+
+    Route::get('/analytics', [AnalyticsController::class, 'index'])->name('analytics');
 });
