@@ -3,7 +3,7 @@
 @section('title', 'Dashboard')
 
 @push('styles')
-   @vite(['resources/css/app.css', 'resources/css/dashboard.css'])
+    @vite(['resources/css/app.css', 'resources/css/dashboard.css'])
 @endpush
 
 @section('content')
@@ -11,7 +11,7 @@
     <main class="main-content">
 
         {{-- Reopen add modal automatically if validation failed --}}
-        @if($errors->any())
+        @if ($errors->any())
             <span data-reopen-modal="add-modal" style="display:none;"></span>
         @endif
 
@@ -27,61 +27,114 @@
             </div>
             <div style="display:flex;align-items:center;gap:12px;">
                 {{-- Month switcher --}}
-                <div style="display:flex;align-items:center;gap:0;background:#fff;border:1px solid #e8e4dc;border-radius:14px;overflow:hidden;">
+                <div
+                    style="display:flex;align-items:center;gap:0;background:#fff;border:1px solid #e8e4dc;border-radius:14px;overflow:hidden;">
                     <a href="{{ route('dashboard') }}?month={{ $prevMonth }}"
-                       style="display:flex;align-items:center;padding:10px 14px;color:#888;text-decoration:none;transition:all 0.2s;border-right:1px solid #e8e4dc;"
-                       onmouseover="this.style.background='#F5F3EE'" onmouseout="this.style.background='transparent'">
-                        <svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round;"><polyline points="15,18 9,12 15,6"/></svg>
+                        style="display:flex;align-items:center;padding:10px 14px;color:#888;text-decoration:none;transition:all 0.2s;border-right:1px solid #e8e4dc;"
+                        onmouseover="this.style.background='#F5F3EE'" onmouseout="this.style.background='transparent'">
+                        <svg viewBox="0 0 24 24"
+                            style="width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round;">
+                            <polyline points="15,18 9,12 15,6" />
+                        </svg>
                     </a>
                     <span style="padding:10px 16px;font-size:14px;font-weight:600;color:#1a1a1a;white-space:nowrap;">
                         {{ $selectedMonth->format('F Y') }}
                     </span>
-                    @if(!$isCurrentMonth)
+                    @if (!$isCurrentMonth)
                         <a href="{{ route('dashboard') }}?month={{ $nextMonth }}"
-                           style="display:flex;align-items:center;padding:10px 14px;color:#888;text-decoration:none;transition:all 0.2s;border-left:1px solid #e8e4dc;"
-                           onmouseover="this.style.background='#F5F3EE'" onmouseout="this.style.background='transparent'">
-                            <svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round;"><polyline points="9,18 15,12 9,6"/></svg>
+                            style="display:flex;align-items:center;padding:10px 14px;color:#888;text-decoration:none;transition:all 0.2s;border-left:1px solid #e8e4dc;"
+                            onmouseover="this.style.background='#F5F3EE'" onmouseout="this.style.background='transparent'">
+                            <svg viewBox="0 0 24 24"
+                                style="width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round;">
+                                <polyline points="9,18 15,12 9,6" />
+                            </svg>
                         </a>
                     @else
-                        <span style="display:flex;align-items:center;padding:10px 14px;color:#ddd;border-left:1px solid #e8e4dc;cursor:not-allowed;">
-                            <svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round;"><polyline points="9,18 15,12 9,6"/></svg>
+                        <span
+                            style="display:flex;align-items:center;padding:10px 14px;color:#ddd;border-left:1px solid #e8e4dc;cursor:not-allowed;">
+                            <svg viewBox="0 0 24 24"
+                                style="width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round;">
+                                <polyline points="9,18 15,12 9,6" />
+                            </svg>
                         </span>
                     @endif
                 </div>
                 <button class="quick-add-btn" style="width:auto;padding:13px 20px;" data-open-modal="add-modal">
-                    <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                    <svg viewBox="0 0 24 24">
+                        <line x1="12" y1="5" x2="12" y2="19" />
+                        <line x1="5" y1="12" x2="19" y2="12" />
+                    </svg>
                     Add Expense
                 </button>
             </div>
         </div>
 
         {{-- ── Streak ── --}}
-        @if(Auth::user()->current_streak > 0)
-            <div class="streak-row">
-                <span class="streak-flame">🔥</span>
-                <span class="streak-text">You're on a <span>{{ Auth::user()->current_streak }}-day streak</span> — keep logging your expenses!</span>
-            </div>
-        @endif
+        {{-- Updated Streak Stat Card --}}
+        <div class="stat-card" style="margin-bottom:20px;">
+            <div class="stat-icon" style="font-size:20px;">🔥</div>
+            <div class="stat-label">Logging Streak</div>
+            <div class="stat-value">{{ Auth::user()->current_streak }} days</div>
+
+            @if (Auth::user()->current_streak >= 4)
+                <div class="stat-change up" style="color: #2EB872;">
+                    ↑ +20 pts daily bonus active!
+                </div>
+            @else
+                <div class="stat-change" style="color: #888;">
+                    Reach 4 days for bonus points
+                </div>
+            @endif
+        </div>
 
         {{-- ── Smart Alerts ── --}}
         @php
             $alerts = [];
             foreach ($budgets as $b) {
-                if ($b['percent_used'] >= 100)
-                    $alerts[] = ['type' => 'danger', 'icon' => '🚨', 'msg' => "<strong>{$b['category']->name}</strong> budget exceeded — spent $" . number_format($b['current_spending'], 2) . " of $" . number_format($b['monthly_limit'], 2)];
-                elseif ($b['percent_used'] >= 80)
-                    $alerts[] = ['type' => 'warn', 'icon' => '⚠️', 'msg' => "<strong>{$b['category']->name}</strong> is at {$b['percent_used']}% of your budget"];
+                if ($b['percent_used'] >= 100) {
+                    $alerts[] = [
+                        'type' => 'danger',
+                        'icon' => '🚨',
+                        'msg' =>
+                            "<strong>{$b['category']->name}</strong> budget exceeded — spent $" .
+                            number_format($b['current_spending'], 2) .
+                            " of $" .
+                            number_format($b['monthly_limit'], 2),
+                    ];
+                } elseif ($b['percent_used'] >= 80) {
+                    $alerts[] = [
+                        'type' => 'warn',
+                        'icon' => '⚠️',
+                        'msg' => "<strong>{$b['category']->name}</strong> is at {$b['percent_used']}% of your budget",
+                    ];
+                }
             }
-            if ($spentPercentage >= 90)
-                $alerts[] = ['type' => 'danger', 'icon' => '🚨', 'msg' => "You've used <strong>" . round($spentPercentage) . "%</strong> of your monthly allowance!"];
-            elseif ($spentPercentage >= 70)
-                $alerts[] = ['type' => 'warn', 'icon' => '⚠️', 'msg' => "You've used <strong>" . round($spentPercentage) . "%</strong> of your monthly allowance"];
-            elseif ($spentPercentage <= 30 && $monthlyAllowance > 0)
-                $alerts[] = ['type' => 'info', 'icon' => '🎉', 'msg' => "Great job — you've only spent <strong>" . round($spentPercentage) . "%</strong> of your allowance this month!"];
+            if ($spentPercentage >= 90) {
+                $alerts[] = [
+                    'type' => 'danger',
+                    'icon' => '🚨',
+                    'msg' => "You've used <strong>" . round($spentPercentage) . '%</strong> of your monthly allowance!',
+                ];
+            } elseif ($spentPercentage >= 70) {
+                $alerts[] = [
+                    'type' => 'warn',
+                    'icon' => '⚠️',
+                    'msg' => "You've used <strong>" . round($spentPercentage) . '%</strong> of your monthly allowance',
+                ];
+            } elseif ($spentPercentage <= 30 && $monthlyAllowance > 0) {
+                $alerts[] = [
+                    'type' => 'info',
+                    'icon' => '🎉',
+                    'msg' =>
+                        "Great job — you've only spent <strong>" .
+                        round($spentPercentage) .
+                        '%</strong> of your allowance this month!',
+                ];
+            }
         @endphp
-        @if(count($alerts))
+        @if (count($alerts))
             <div class="alerts-stack">
-                @foreach($alerts as $alert)
+                @foreach ($alerts as $alert)
                     <div class="alert-item {{ $alert['type'] }}">
                         <span class="alert-icon">{{ $alert['icon'] }}</span>
                         <span class="alert-text">{!! $alert['msg'] !!}</span>
@@ -96,7 +149,10 @@
             {{-- Remaining Budget --}}
             <div class="stat-card accent-peach">
                 <div class="stat-icon">
-                    <svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>
+                    <svg viewBox="0 0 24 24">
+                        <rect x="2" y="5" width="20" height="14" rx="2" />
+                        <path d="M2 10h20" />
+                    </svg>
                 </div>
                 <div class="stat-label">Remaining This Month</div>
                 <div class="stat-value" style="color:{{ $remaining < 0 ? '#9b1c1c' : '#1C1C1E' }};">
@@ -108,7 +164,9 @@
                         <span>of ${{ number_format($monthlyAllowance, 2) }}</span>
                     </div>
                     <div class="stat-budget-track">
-                        <div class="stat-budget-fill" style="width:{{ min(100, $spentPercentage) }}%; background:{{ $spentPercentage > 90 ? '#9b1c1c' : '#a86200' }};"></div>
+                        <div class="stat-budget-fill"
+                            style="width:{{ min(100, $spentPercentage) }}%; background:{{ $spentPercentage > 90 ? '#9b1c1c' : '#a86200' }};">
+                        </div>
                     </div>
                 </div>
                 <div class="stat-bg-decoration"></div>
@@ -117,7 +175,10 @@
             {{-- Monthly Allowance --}}
             <div class="stat-card">
                 <div class="stat-icon">
-                    <svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>
+                    <svg viewBox="0 0 24 24">
+                        <rect x="2" y="5" width="20" height="14" rx="2" />
+                        <path d="M2 10h20" />
+                    </svg>
                 </div>
                 <div class="stat-label">Monthly Allowance</div>
                 <div class="stat-value">${{ number_format($monthlyAllowance, 2) }}</div>
@@ -129,8 +190,8 @@
             <div class="stat-card">
                 <div class="stat-icon">
                     <svg viewBox="0 0 24 24">
-                        <polyline points="23,18 13.5,8.5 8.5,13.5 1,6"/>
-                        <polyline points="17,18 23,18 23,12"/>
+                        <polyline points="23,18 13.5,8.5 8.5,13.5 1,6" />
+                        <polyline points="17,18 23,18 23,12" />
                     </svg>
                 </div>
                 <div class="stat-label">Spent This Month</div>
@@ -161,26 +222,30 @@
                 </div>
                 @php $maxVal = max(1, max(array_merge($chartExpenses, $chartAllowances))); @endphp
                 <div class="bar-chart">
-                    @foreach($chartMonths as $i => $month)
+                    @foreach ($chartMonths as $i => $month)
                         @php
-                            $expH   = max(4, round(($chartExpenses[$i] / $maxVal) * 110));
+                            $expH = max(4, round(($chartExpenses[$i] / $maxVal) * 110));
                             $isLast = $i === count($chartMonths) - 1;
                         @endphp
                         <div class="bar-group">
                             <div class="bar-wrap">
-                                <div class="bar expense" style="height:{{ $expH }}px; opacity:{{ $isLast ? 1 : 0.45 }};"></div>
+                                <div class="bar expense"
+                                    style="height:{{ $expH }}px; opacity:{{ $isLast ? 1 : 0.45 }};"></div>
                             </div>
                             <div class="bar-label {{ $isLast ? 'current' : '' }}">{{ $month }}</div>
                         </div>
                     @endforeach
                 </div>
                 <div class="chart-legend">
-                    <div class="legend-item"><div class="legend-dot" style="background:#FBCF97;margin-top:4px;"></div> Expenses</div>
+                    <div class="legend-item">
+                        <div class="legend-dot" style="background:#FBCF97;margin-top:4px;"></div> Expenses
+                    </div>
                     <div class="chart-summary">
                         This month:
                         <span style="color:#e07a10;font-weight:700;">−${{ number_format($monthlyExpenses, 0) }}</span>
                         /
-                        <span style="color:#888;font-weight:700;">${{ number_format($monthlyAllowance, 0) }} allowance</span>
+                        <span style="color:#888;font-weight:700;">${{ number_format($monthlyAllowance, 0) }}
+                            allowance</span>
                     </div>
                 </div>
             </div>
@@ -190,9 +255,10 @@
 
                 {{-- Savings Goal --}}
                 <div class="goal-card">
-                    @if($goal)
+                    @if ($goal)
                         <div class="goal-title">🎯 {{ $goalTitle }}</div>
-                        <div class="goal-subtitle">{{ $goalDeadline ? 'Target: ' . $goalDeadline : 'No deadline set' }}</div>
+                        <div class="goal-subtitle">{{ $goalDeadline ? 'Target: ' . $goalDeadline : 'No deadline set' }}
+                        </div>
                         <div class="goal-amounts">
                             <div>
                                 <div style="font-size:11px;color:#555;margin-bottom:2px;">SAVED SO FAR</div>
@@ -209,13 +275,16 @@
                             <div class="goal-progress-fill" style="width:{{ $goalPct }}%;"></div>
                         </div>
                         <div class="goal-pct">
-                            <strong>{{ $goalPct }}% complete</strong> — ${{ number_format($goalTarget - $goalSaved) }} to go
+                            <strong>{{ $goalPct }}% complete</strong> —
+                            ${{ number_format($goalTarget - $goalSaved) }} to go
                         </div>
                     @else
                         <div class="goal-title">🎯 No active goal</div>
-                        <div class="goal-subtitle" style="margin-bottom:20px;">Set a savings goal to track your progress here.</div>
-                        @if(\Illuminate\Support\Facades\Route::has('goals.index'))
-                            <a href="{{ route('goals.index') }}" style="display:inline-block;background:#FBCF97;color:#1C1C1E;font-family:'Syne',sans-serif;font-weight:700;font-size:13px;padding:10px 18px;border-radius:12px;text-decoration:none;">
+                        <div class="goal-subtitle" style="margin-bottom:20px;">Set a savings goal to track your progress
+                            here.</div>
+                        @if (\Illuminate\Support\Facades\Route::has('goals.index'))
+                            <a href="{{ route('goals.index') }}"
+                                style="display:inline-block;background:#FBCF97;color:#1C1C1E;font-family:'Syne',sans-serif;font-weight:700;font-size:13px;padding:10px 18px;border-radius:12px;text-decoration:none;">
                                 + Create a Goal
                             </a>
                         @endif
@@ -226,7 +295,7 @@
                 <div class="panel" style="padding:22px 24px;">
                     <div class="panel-header">
                         <div class="panel-title">Category Budgets</div>
-                        @if(\Illuminate\Support\Facades\Route::has('budgets.index'))
+                        @if (\Illuminate\Support\Facades\Route::has('budgets.index'))
                             <a href="{{ route('budgets.index') }}" class="panel-action">Manage →</a>
                         @endif
                     </div>
@@ -235,7 +304,8 @@
                             <div>
                                 <div class="budget-item-head">
                                     <div class="budget-item-name">
-                                        <div class="budget-color-dot" style="background:{{ $budget['category']->color ?? '#FBCF97' }};"></div>
+                                        <div class="budget-color-dot"
+                                            style="background:{{ $budget['category']->color ?? '#FBCF97' }};"></div>
                                         {{ $budget['category']->name }}
                                     </div>
                                     <div class="budget-item-amounts">
@@ -244,15 +314,18 @@
                                     </div>
                                 </div>
                                 <div class="budget-track-wrap">
-                                    <div class="budget-track-fill" style="
+                                    <div class="budget-track-fill"
+                                        style="
                                         width:{{ min(100, $budget['percent_used']) }}%;
-                                        background:{{ $budget['percent_used'] >= 100 ? '#e05c5c' : ($budget['percent_used'] >= 80 ? '#FBCF97' : ($budget['category']->color ?? '#2EB872')) }};
-                                    "></div>
+                                        background:{{ $budget['percent_used'] >= 100 ? '#e05c5c' : ($budget['percent_used'] >= 80 ? '#FBCF97' : $budget['category']->color ?? '#2EB872') }};
+                                    ">
+                                    </div>
                                 </div>
                                 <div class="budget-item-pct">{{ $budget['percent_used'] }}% used</div>
                             </div>
                         @empty
-                            <p style="font-size:13px;color:#aaa;text-align:center;padding:20px 0;">No budgets set up yet.</p>
+                            <p style="font-size:13px;color:#aaa;text-align:center;padding:20px 0;">No budgets set up yet.
+                            </p>
                         @endforelse
                     </div>
                 </div>
@@ -275,7 +348,8 @@
                         <div class="category-meta">
                             <div class="category-name">{{ $cat['name'] }}</div>
                             <div class="category-bar-wrap">
-                                <div class="category-bar-fill" style="width:{{ min(100, $cat['pct']) }}%;background:{{ $cat['color'] }};"></div>
+                                <div class="category-bar-fill"
+                                    style="width:{{ min(100, $cat['pct']) }}%;background:{{ $cat['color'] }};"></div>
                             </div>
                         </div>
                         <div>
@@ -284,7 +358,8 @@
                         </div>
                     </div>
                 @empty
-                    <p style="font-size:13px;color:#aaa;text-align:center;padding:20px 0;">No expenses recorded this month.</p>
+                    <p style="font-size:13px;color:#aaa;text-align:center;padding:20px 0;">No expenses recorded this month.
+                    </p>
                 @endforelse
             </div>
 
@@ -292,7 +367,7 @@
             <div class="panel">
                 <div class="panel-header">
                     <div class="panel-title">Recent Expenses</div>
-                    @if(\Illuminate\Support\Facades\Route::has('transactions.index'))
+                    @if (\Illuminate\Support\Facades\Route::has('transactions.index'))
                         <a href="{{ route('transactions.index') }}" class="panel-action">View all</a>
                     @endif
                 </div>
@@ -303,7 +378,9 @@
                             <div class="tx-name">{{ $tx->description ?? '—' }}</div>
                             <div class="tx-date">
                                 {{ \Carbon\Carbon::parse($tx->date)->isToday() ? 'Today' : (\Carbon\Carbon::parse($tx->date)->isYesterday() ? 'Yesterday' : \Carbon\Carbon::parse($tx->date)->format('M j')) }}
-                                @if($tx->category) · {{ $tx->category->name }} @endif
+                                @if ($tx->category)
+                                    · {{ $tx->category->name }}
+                                @endif
                             </div>
                         </div>
                         <div class="tx-amount debit">
@@ -334,44 +411,58 @@
                     <label class="form-label">Amount (DH)</label>
                     <input type="number" name="amount" step="0.01" min="0.01" placeholder="0.00"
                         value="{{ old('amount') }}" class="form-input" required>
-                    @error('amount')<span class="form-error">{{ $message }}</span>@enderror
+                    @error('amount')
+                        <span class="form-error">{{ $message }}</span>
+                    @enderror
                 </div>
 
                 <div class="form-group">
                     <label class="form-label">Description</label>
                     <input type="text" name="description" placeholder="e.g. Grocery run"
                         value="{{ old('description') }}" class="form-input">
-                    @error('description')<span class="form-error">{{ $message }}</span>@enderror
+                    @error('description')
+                        <span class="form-error">{{ $message }}</span>
+                    @enderror
                 </div>
 
                 <div class="form-group">
                     <label class="form-label">Category</label>
                     <select name="category_id" class="form-select">
                         <option value="">Select a category</option>
-                        @foreach($categories ?? [] as $cat)
+                        @foreach ($categories ?? [] as $cat)
                             <option value="{{ $cat->id }}" {{ old('category_id') == $cat->id ? 'selected' : '' }}>
                                 {{ $cat->name }}
                             </option>
                         @endforeach
                     </select>
-                    @error('category_id')<span class="form-error">{{ $message }}</span>@enderror
+                    @error('category_id')
+                        <span class="form-error">{{ $message }}</span>
+                    @enderror
                 </div>
 
                 <div class="form-group">
                     <label class="form-label">Date</label>
                     <input type="date" name="date" value="{{ old('date', now()->format('Y-m-d')) }}"
                         class="form-input" required>
-                    @error('date')<span class="form-error">{{ $message }}</span>@enderror
+                    @error('date')
+                        <span class="form-error">{{ $message }}</span>
+                    @enderror
                 </div>
 
                 <div class="form-group">
                     <label class="form-label">Receipt Image (optional)</label>
-                    <input type="file" name="receipt_image" accept="image/*" class="form-input" style="padding:8px 14px;">
-                    @error('receipt_image')<span class="form-error">{{ $message }}</span>@enderror
+                    <input type="file" name="receipt_image" accept="image/*" class="form-input"
+                        style="padding:8px 14px;">
+                    @error('receipt_image')
+                        <span class="form-error">{{ $message }}</span>
+                    @enderror
                 </div>
 
                 <button type="submit" class="submit-btn">
-                    <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                    <svg viewBox="0 0 24 24">
+                        <line x1="12" y1="5" x2="12" y2="19" />
+                        <line x1="5" y1="12" x2="19" y2="12" />
+                    </svg>
                     Save Expense
                 </button>
             </form>

@@ -30,9 +30,45 @@ class AuthService
             return false;
         }
 
-        Auth::user()->update(['last_activity' => now()]);
+        $user = Auth::user();
+        $now = now();
+        $lastActivity = $user->last_activity;
+
+        if ($lastActivity) {
+            $hoursSinceLastActivity = $now->diffInHours($lastActivity);
+            $isNewDay = $now->diffInDays($lastActivity) >= 1;
+
+            if ($hoursSinceLastActivity > 48) {
+                $user->current_streak = 1;
+            } elseif ($isNewDay) {
+                $user->current_streak += 1;
+
+                $user->points += $this->calculateStreakPoints($user->current_streak);
+            }
+        } else {
+            $user->current_streak = 1;
+        }
+
+        $user->last_activity = $now;
+        $user->save();
 
         return true;
+    }
+
+
+    private function calculateStreakPoints(int $streak): int
+    {
+        $points = 0;
+
+        if ($streak >= 4) {
+            $points += 20;
+        }
+
+        if ($streak == 7) $points += 100;
+        if ($streak == 14) $points += 250;
+        if ($streak == 30) $points += 500;
+
+        return $points;
     }
 
     public function logout(): void
