@@ -159,4 +159,16 @@ class DashboardService
     {
         return Category::orderBy('name')->get();
     }
+    
+    public function getDailyAllowance($remainingBudget)
+    {
+        $now = now();
+        $daysInMonth = $now->daysInMonth;
+        $currentDay = $now->day;
+
+        // Calculate remaining days (including today)
+        $daysRemaining = ($daysInMonth - $currentDay) + 1;
+
+        return $remainingBudget > 0 ? $remainingBudget / $daysRemaining : 0;
+    }
 }

@@ -25,7 +25,8 @@ class DashboardController extends Controller
         $spendingByCategory = $this->dashboardService->getSpendingByCategory($user->id, $selectedMonth, $kpis['monthlyExpenses']);
         $recentTransactions = $this->dashboardService->getRecentTransactions($user->id, $selectedMonth);
         $categories         = $this->dashboardService->getCategories();
-
+        $dailySafeToSpend = $this->dashboardService->getDailyAllowance($kpis['remaining']);
+        
         return view('dashboard.index', [
             // Allowance & spending
             'monthlyAllowance'  => $monthlyAllowance,
@@ -58,6 +59,7 @@ class DashboardController extends Controller
             'prevMonth'         => $selectedMonth->copy()->subMonth()->format('Y-m'),
             'nextMonth'         => $selectedMonth->copy()->addMonth()->format('Y-m'),
             'isCurrentMonth'    => $selectedMonth->isSameMonth(Carbon::now()),
+            'dailySafeToSpend' => $dailySafeToSpend,
         ]);
     }
 }
