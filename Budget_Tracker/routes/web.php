@@ -21,6 +21,7 @@ use App\Http\Controllers\User\BudgetController;
 use App\Http\Controllers\User\CategoryController;
 use App\Http\Controllers\User\GoalController;
 use App\Http\Controllers\User\AnalyticsController;
+use App\Http\Controllers\User\ExportController;
 
 Route::get('/', function () {
     return view('auth.login');
@@ -76,4 +77,6 @@ Route::middleware('auth')->group(function () {
     Route::post('/budgets/category',    [BudgetController::class, 'storeCategory'])->name('budgets.storeCategory');
 
     Route::get('/analytics', [AnalyticsController::class, 'index'])->name('analytics');
+
+    Route::get('/export/monthly-report', [ExportController::class, 'downloadMonthlyReport'])->name('export.report');
 });
