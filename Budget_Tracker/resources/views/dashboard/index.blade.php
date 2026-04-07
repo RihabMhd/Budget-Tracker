@@ -69,24 +69,6 @@
             </div>
         </div>
 
-        {{-- ── Streak ── --}}
-        {{-- Updated Streak Stat Card --}}
-        <div class="stat-card" style="margin-bottom:20px;">
-            <div class="stat-icon" style="font-size:20px;">🔥</div>
-            <div class="stat-label">Logging Streak</div>
-            <div class="stat-value">{{ Auth::user()->current_streak }} days</div>
-
-            @if (Auth::user()->current_streak >= 4)
-                <div class="stat-change up" style="color: #2EB872;">
-                    ↑ +20 pts daily bonus active!
-                </div>
-            @else
-                <div class="stat-change" style="color: #888;">
-                    Reach 4 days for bonus points
-                </div>
-            @endif
-        </div>
-
         {{-- ── Smart Alerts ── --}}
         @php
             $alerts = [];
@@ -146,32 +128,6 @@
         {{-- ── Stat Cards ── --}}
         <div class="stats-grid">
 
-            {{-- Remaining Budget --}}
-            <div class="stat-card accent-peach">
-                <div class="stat-icon">
-                    <svg viewBox="0 0 24 24">
-                        <rect x="2" y="5" width="20" height="14" rx="2" />
-                        <path d="M2 10h20" />
-                    </svg>
-                </div>
-                <div class="stat-label">Remaining This Month</div>
-                <div class="stat-value" style="color:{{ $remaining < 0 ? '#9b1c1c' : '#1C1C1E' }};">
-                    {{ $remaining < 0 ? '-' : '' }}${{ number_format(abs($remaining), 2) }}
-                </div>
-                <div class="stat-budget-bar-wrap">
-                    <div class="stat-budget-bar-meta">
-                        <span>{{ round($spentPercentage) }}% spent</span>
-                        <span>of ${{ number_format($monthlyAllowance, 2) }}</span>
-                    </div>
-                    <div class="stat-budget-track">
-                        <div class="stat-budget-fill"
-                            style="width:{{ min(100, $spentPercentage) }}%; background:{{ $spentPercentage > 90 ? '#9b1c1c' : '#a86200' }};">
-                        </div>
-                    </div>
-                </div>
-                <div class="stat-bg-decoration"></div>
-            </div>
-
             {{-- Monthly Allowance --}}
             <div class="stat-card">
                 <div class="stat-icon">
@@ -201,12 +157,56 @@
                 </div>
             </div>
 
-            {{-- Streak --}}
+            {{-- Remaining Budget --}}
+            <div class="stat-card accent-peach">
+                <div class="stat-icon">
+                    <svg viewBox="0 0 24 24">
+                        <rect x="2" y="5" width="20" height="14" rx="2" />
+                        <path d="M2 10h20" />
+                    </svg>
+                </div>
+                <div class="stat-label">Remaining This Month</div>
+                <div class="stat-value" style="color:{{ $remaining < 0 ? '#9b1c1c' : '#1C1C1E' }};">
+                    {{ $remaining < 0 ? '-' : '' }}${{ number_format(abs($remaining), 2) }}
+                </div>
+                <div class="stat-budget-bar-wrap">
+                    <div class="stat-budget-bar-meta">
+                        <span>{{ round($spentPercentage) }}% spent</span>
+                        <span>of ${{ number_format($monthlyAllowance, 2) }}</span>
+                    </div>
+                    <div class="stat-budget-track">
+                        <div class="stat-budget-fill"
+                            style="width:{{ min(100, $spentPercentage) }}%; background:{{ $spentPercentage > 90 ? '#9b1c1c' : '#a86200' }};">
+                        </div>
+                    </div>
+                </div>
+                <div class="stat-bg-decoration"></div>
+            </div>
+
+            {{-- Daily Safe-to-Spend --}}
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <svg viewBox="0 0 24 24">
+                        <circle cx="12" cy="12" r="10" />
+                        <polyline points="12,6 12,12 16,14" />
+                    </svg>
+                </div>
+                <div class="stat-label">Daily Safe-to-Spend</div>
+                <div class="stat-value" style="color:#2EB872;">{{ number_format($dailySafeToSpend, 2) }} DH</div>
+                <div class="stat-change up">Based on days remaining this month</div>
+                <div class="stat-bg-decoration"></div>
+            </div>
+
+            {{-- Logging Streak --}}
             <div class="stat-card">
                 <div class="stat-icon" style="font-size:20px;">🔥</div>
                 <div class="stat-label">Logging Streak</div>
                 <div class="stat-value">{{ Auth::user()->current_streak }} days</div>
-                <div class="stat-change up">↑ Keep it up!</div>
+                @if (Auth::user()->current_streak >= 4)
+                    <div class="stat-change up" style="color:#2EB872;">↑ +20 pts daily bonus active!</div>
+                @else
+                    <div class="stat-change">Reach 4 days for bonus points</div>
+                @endif
             </div>
 
         </div>
