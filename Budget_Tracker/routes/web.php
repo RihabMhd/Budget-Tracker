@@ -22,6 +22,7 @@ use App\Http\Controllers\User\CategoryController;
 use App\Http\Controllers\User\GoalController;
 use App\Http\Controllers\User\AnalyticsController;
 use App\Http\Controllers\User\ExportController;
+use App\Http\Controllers\User\ChatController;
 
 Route::get('/', function () {
     return view('auth.login');
@@ -79,4 +80,6 @@ Route::middleware('auth')->group(function () {
     Route::get('/analytics', [AnalyticsController::class, 'index'])->name('analytics');
 
     Route::get('/export/monthly-report', [ExportController::class, 'downloadMonthlyReport'])->name('export.report');
+
+    Route::post('/api/ai-chat', ChatController::class)->name('ai.chat');
 });
