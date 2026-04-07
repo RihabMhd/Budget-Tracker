@@ -296,11 +296,11 @@
 
                 <div class="form-group">
                     <label class="form-label">Receipt Image (optional)</label>
-                    <input type="file" name="receipt_image" accept="image/*" class="form-input"
-                        style="padding:8px 14px;">
-                    @error('receipt_image')
-                        <span class="form-error">{{ $message }}</span>
-                    @enderror
+                    <input type="file" name="receipt_image" id="receipt-scan-input" accept="image/*"
+                        class="form-input" style="padding:8px 14px;">
+                    <div id="ocr-status" class="text-sm mt-1 hidden" style="color: #6366f1;">
+                        <span class="spinner"></span> Scanning receipt details...
+                    </div>
                 </div>
 
                 <button type="submit" class="submit-btn">
@@ -318,5 +318,6 @@
 @endsection
 
 @push('scripts')
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
     @vite('resources/js/transactions.js')
 @endpush
