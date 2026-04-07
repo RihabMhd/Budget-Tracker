@@ -16,8 +16,10 @@ class Budget extends Model
     ];
 
     protected $casts = [
-        'monthly_limit' => 'float', 
+        'monthly_limit' => 'float',
     ];
+
+    // ── Relationships ─────────────────────────────────────────────
 
     public function category()
     {
@@ -29,11 +31,12 @@ class Budget extends Model
         return $this->belongsTo(User::class);
     }
 
+    // ── Accessors ─────────────────────────────────────────────────
+
     public function getCurrentMonthSpendingAttribute(): float
     {
         return (float) Transaction::where('category_id', $this->category_id)
             ->where('user_id', $this->user_id)
-            ->expense()
             ->thisMonth()
             ->sum('amount');
     }

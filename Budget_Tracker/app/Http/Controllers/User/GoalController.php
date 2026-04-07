@@ -24,11 +24,6 @@ class GoalController extends Controller
         return view('goals.index', compact('goals'));
     }
 
-    public function create(): View
-    {
-        return view('goals.create');
-    }
-
     public function store(GoalRequest $request): RedirectResponse
     {
         $this->goalService->createGoal(Auth::id(), $request->validated());

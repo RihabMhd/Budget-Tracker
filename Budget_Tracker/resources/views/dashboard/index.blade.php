@@ -214,8 +214,8 @@
                     @else
                         <div class="goal-title">🎯 No active goal</div>
                         <div class="goal-subtitle" style="margin-bottom:20px;">Set a savings goal to track your progress here.</div>
-                        @if(\Illuminate\Support\Facades\Route::has('goals.create'))
-                            <a href="{{ route('goals.create') }}" style="display:inline-block;background:#FBCF97;color:#1C1C1E;font-family:'Syne',sans-serif;font-weight:700;font-size:13px;padding:10px 18px;border-radius:12px;text-decoration:none;">
+                        @if(\Illuminate\Support\Facades\Route::has('goals.index'))
+                            <a href="{{ route('goals.index') }}" style="display:inline-block;background:#FBCF97;color:#1C1C1E;font-family:'Syne',sans-serif;font-weight:700;font-size:13px;padding:10px 18px;border-radius:12px;text-decoration:none;">
                                 + Create a Goal
                             </a>
                         @endif

@@ -61,10 +61,16 @@ Route::middleware('auth')->group(function () {
     Route::delete('/transactions/{transaction}',      [TransactionController::class, 'destroy'])->name('transactions.destroy');
 
     Route::get('/goals',               [GoalController::class, 'index'])->name('goals.index');
-    Route::get('/goals/create',        [GoalController::class, 'create'])->name('goals.create');
     Route::post('/goals',              [GoalController::class, 'store'])->name('goals.store');
     Route::get('/goals/{goal}/edit',   [GoalController::class, 'edit'])->name('goals.edit');
     Route::put('/goals/{goal}',        [GoalController::class, 'update'])->name('goals.update');
     Route::delete('/goals/{goal}',     [GoalController::class, 'destroy'])->name('goals.destroy');
     Route::post('/goals/{goal}/funds', [GoalController::class, 'addFunds'])->name('goals.funds');
+
+    Route::get('/budgets',            [BudgetController::class, 'index'])->name('budgets.index');
+    Route::post('/budgets',           [BudgetController::class, 'store'])->name('budgets.store');
+    Route::patch('/budgets/{budget}', [BudgetController::class, 'update'])->name('budgets.update');
+    Route::delete('/budgets/{budget}', [BudgetController::class, 'destroy'])->name('budgets.destroy');
+    Route::post('/budgets/monthly',     [BudgetController::class, 'storeMonthly'])->name('budgets.storeMonthly');
+    Route::post('/budgets/category',    [BudgetController::class, 'storeCategory'])->name('budgets.storeCategory');
 });
