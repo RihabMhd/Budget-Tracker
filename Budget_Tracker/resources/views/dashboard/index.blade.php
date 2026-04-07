@@ -66,6 +66,14 @@
                     </svg>
                     Add Expense
                 </button>
+                <a href="{{ route('export.report', ['month' => $selectedMonth->format('Y-m')]) }}"
+                    class="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                    <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"
+                        viewBox="0 0 24 24">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3" />
+                    </svg>
+                    <span>Export PDF</span>
+                </a>
             </div>
         </div>
 
@@ -212,16 +220,21 @@
         </div>
 
         {{-- ── Mid grid: chart + right column ── --}}
-        <div class="mid-grid">
+        {{--
+            Layout: 3-column grid on wide screens
+            Col 1-2: chart panel (spans 2 cols)
+            Col 3: goal card + category budgets stacked
+        --}}
+        <div style="display:grid;grid-template-columns:1fr 320px;gap:20px;align-items:start;">
 
-            {{-- Spending bar chart --}}
-            <div class="panel">
+            {{-- LEFT: Spending bar chart --}}
+            <div class="panel" style="padding:22px 24px;">
                 <div class="panel-header">
                     <div class="panel-title">Monthly Spending</div>
                     <a href="#" class="panel-action">9-month view</a>
                 </div>
                 @php $maxVal = max(1, max(array_merge($chartExpenses, $chartAllowances))); @endphp
-                <div class="bar-chart">
+                <div class="bar-chart" style="height:130px;align-items:flex-end;">
                     @foreach ($chartMonths as $i => $month)
                         @php
                             $expH = max(4, round(($chartExpenses[$i] / $maxVal) * 110));
@@ -236,29 +249,27 @@
                         </div>
                     @endforeach
                 </div>
-                <div class="chart-legend">
+                <div class="chart-legend" style="margin-top:12px;">
                     <div class="legend-item">
-                        <div class="legend-dot" style="background:#FBCF97;margin-top:4px;"></div> Expenses
+                        <div class="legend-dot" style="background:#FBCF97;"></div> Expenses
                     </div>
                     <div class="chart-summary">
                         This month:
                         <span style="color:#e07a10;font-weight:700;">−${{ number_format($monthlyExpenses, 0) }}</span>
                         /
-                        <span style="color:#888;font-weight:700;">${{ number_format($monthlyAllowance, 0) }}
-                            allowance</span>
+                        <span style="color:#888;font-weight:700;">${{ number_format($monthlyAllowance, 0) }} allowance</span>
                     </div>
                 </div>
             </div>
 
-            {{-- Right column --}}
-            <div style="display:flex;flex-direction:column;gap:18px;">
+            {{-- RIGHT column: Savings Goal + Category Budgets --}}
+            <div style="display:flex;flex-direction:column;gap:16px;">
 
                 {{-- Savings Goal --}}
-                <div class="goal-card">
+                <div class="goal-card" style="margin:0;">
                     @if ($goal)
                         <div class="goal-title">🎯 {{ $goalTitle }}</div>
-                        <div class="goal-subtitle">{{ $goalDeadline ? 'Target: ' . $goalDeadline : 'No deadline set' }}
-                        </div>
+                        <div class="goal-subtitle">{{ $goalDeadline ? 'Target: ' . $goalDeadline : 'No deadline set' }}</div>
                         <div class="goal-amounts">
                             <div>
                                 <div style="font-size:11px;color:#555;margin-bottom:2px;">SAVED SO FAR</div>
@@ -280,8 +291,7 @@
                         </div>
                     @else
                         <div class="goal-title">🎯 No active goal</div>
-                        <div class="goal-subtitle" style="margin-bottom:20px;">Set a savings goal to track your progress
-                            here.</div>
+                        <div class="goal-subtitle" style="margin-bottom:16px;">Set a savings goal to track your progress here.</div>
                         @if (\Illuminate\Support\Facades\Route::has('goals.index'))
                             <a href="{{ route('goals.index') }}"
                                 style="display:inline-block;background:#FBCF97;color:#1C1C1E;font-family:'Syne',sans-serif;font-weight:700;font-size:13px;padding:10px 18px;border-radius:12px;text-decoration:none;">
@@ -292,7 +302,7 @@
                 </div>
 
                 {{-- Category Budgets --}}
-                <div class="panel" style="padding:22px 24px;">
+                <div class="panel" style="padding:20px 22px;">
                     <div class="panel-header">
                         <div class="panel-title">Category Budgets</div>
                         @if (\Illuminate\Support\Facades\Route::has('budgets.index'))
@@ -301,7 +311,7 @@
                     </div>
                     <div class="budget-list">
                         @forelse($budgets as $budget)
-                            <div>
+                            <div style="margin-bottom:14px;">
                                 <div class="budget-item-head">
                                     <div class="budget-item-name">
                                         <div class="budget-color-dot"
@@ -315,17 +325,13 @@
                                 </div>
                                 <div class="budget-track-wrap">
                                     <div class="budget-track-fill"
-                                        style="
-                                        width:{{ min(100, $budget['percent_used']) }}%;
-                                        background:{{ $budget['percent_used'] >= 100 ? '#e05c5c' : ($budget['percent_used'] >= 80 ? '#FBCF97' : $budget['category']->color ?? '#2EB872') }};
-                                    ">
+                                        style="width:{{ min(100, $budget['percent_used']) }}%;background:{{ $budget['percent_used'] >= 100 ? '#e05c5c' : ($budget['percent_used'] >= 80 ? '#FBCF97' : $budget['category']->color ?? '#2EB872') }};">
                                     </div>
                                 </div>
                                 <div class="budget-item-pct">{{ $budget['percent_used'] }}% used</div>
                             </div>
                         @empty
-                            <p style="font-size:13px;color:#aaa;text-align:center;padding:20px 0;">No budgets set up yet.
-                            </p>
+                            <p style="font-size:13px;color:#aaa;text-align:center;padding:16px 0;">No budgets set up yet.</p>
                         @endforelse
                     </div>
                 </div>
@@ -334,7 +340,7 @@
         </div>
 
         {{-- ── Bottom: Spending breakdown + Recent expenses ── --}}
-        <div class="bottom-grid">
+        <div class="bottom-grid" style="margin-top:20px;">
 
             {{-- Spending by category --}}
             <div class="panel">
@@ -358,8 +364,7 @@
                         </div>
                     </div>
                 @empty
-                    <p style="font-size:13px;color:#aaa;text-align:center;padding:20px 0;">No expenses recorded this month.
-                    </p>
+                    <p style="font-size:13px;color:#aaa;text-align:center;padding:20px 0;">No expenses recorded this month.</p>
                 @endforelse
             </div>
 
