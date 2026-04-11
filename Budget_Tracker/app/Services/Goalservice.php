@@ -41,33 +41,33 @@ class GoalService
     /**
      * @return array{ goal: Goal, justCompleted: bool }
      */
-public function addFunds(Goal $goal, float $amount): array
-{
-    $wasComplete = $goal->current_amount >= $goal->target_amount;
+    public function addFunds(Goal $goal, float $amount): array
+    {
+        $wasComplete = $goal->current_amount >= $goal->target_amount;
 
-    $goal->current_amount = min(
-        $goal->target_amount,
-        $goal->current_amount + $amount
-    );
-    $goal->save();
+        $goal->current_amount = min(
+            $goal->target_amount,
+            $goal->current_amount + $amount
+        );
+        $goal->save();
 
-    $justCompleted = !$wasComplete && ($goal->current_amount >= $goal->target_amount);
+        $justCompleted = !$wasComplete && ($goal->current_amount >= $goal->target_amount);
 
-    $newBadges = []; // ← initialize here so it's always defined
+        $newBadges = []; 
 
-    if ($justCompleted) {
-        $user = $goal->user;
-        $user->increment('points', 50);
-        $badgeService = app(BadgeService::class);
-        $newBadges = $badgeService->checkAndAward($user);
+        if ($justCompleted) {
+            $user = $goal->user;
+            $user->increment('points', 50);
+            $badgeService = app(BadgeService::class);
+            $newBadges = $badgeService->checkAndAward($user);
+        }
+
+        return [
+            'goal'          => $goal,
+            'justCompleted' => $justCompleted,
+            'newBadges'     => $newBadges,
+        ];
     }
-
-    return [
-        'goal'          => $goal,
-        'justCompleted' => $justCompleted,
-        'newBadges'     => $newBadges,
-    ];
-}
 
 
     public function deleteGoal(Goal $goal): void

@@ -30,23 +30,17 @@ class DashboardService
 
     public function getKpis(int $userId, Carbon $selectedMonth, float $monthlyAllowance): array
     {
-        // Total spent this month
         $monthlyExpenses = Transaction::forUser($userId)
             ->whereYear('date', $selectedMonth->year)
             ->whereMonth('date', $selectedMonth->month)
             ->sum('amount');
 
-        // Remaining = allowance - what was spent this month
         $remaining = $monthlyAllowance - $monthlyExpenses;
 
-        // % of allowance spent
         $spentPercentage = $monthlyAllowance > 0
             ? ($monthlyExpenses / $monthlyAllowance) * 100
             : 0;
 
-        // All-time remaining (sum of all allowances - all expenses)
-        // We approximate as: total allowance across all months user has been active
-        // minus total expenses ever recorded
         $totalExpensesAllTime = Transaction::forUser($userId)->sum('amount');
 
         return [
@@ -71,7 +65,7 @@ class DashboardService
                 ->whereYear('date', $month->year)
                 ->whereMonth('date', $month->month)
                 ->sum('amount');
-            $chartAllowances[] = $monthlyAllowance; // flat line showing the budget ceiling
+            $chartAllowances[] = $monthlyAllowance; 
         }
 
         return compact('chartMonths', 'chartExpenses', 'chartAllowances');
@@ -166,7 +160,6 @@ class DashboardService
         $daysInMonth = $now->daysInMonth;
         $currentDay = $now->day;
 
-        // Calculate remaining days (including today)
         $daysRemaining = ($daysInMonth - $currentDay) + 1;
 
         return $remainingBudget > 0 ? $remainingBudget / $daysRemaining : 0;
