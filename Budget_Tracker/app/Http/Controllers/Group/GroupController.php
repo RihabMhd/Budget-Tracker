@@ -44,12 +44,32 @@ class GroupController extends Controller
 
     public function show(Group $group)
     {
-        // Ensure user is a member of the group
-        $this->authorize('view', $group);
+        $userId = auth()->id();
 
-        $summary = $this->groupService->getGroupSummary($group);
+        // Sum of splits where I am the user, but NOT the one who paid the transaction
+        $what_i_owe = \App\Models\ExpenseSplit::where('user_id', $userId)
+            ->whereHas('transaction', function ($query) use ($userId, $group) {
+                $query->where('group_id', $group->id)->where('user_id', '!=', $userId);
+            })->sum('amount_share');
 
-        return view('groups.show', array_merge(['group' => $group], $summary));
+        // Sum of splits where I am the payer, but the split belongs to OTHERS
+        $what_people_owe_me = \App\Models\ExpenseSplit::where('user_id', '!=', $userId)
+            ->whereHas('transaction', function ($query) use ($userId, $group) {
+                $query->where('group_id', $group->id)->where('user_id', $userId);
+            })->sum('amount_share');
+
+        // Add these to match your view requirements
+        $recent_transactions = $group->transactions()->with('user')->latest()->take(10)->get();
+        $categories = \App\Models\Category::all();
+
+        // Remove the "..." and list everything explicitly
+        return view('groups.show', compact(
+            'group',
+            'what_i_owe',
+            'what_people_owe_me',
+            'recent_transactions',
+            'categories'
+        ));
     }
 
 
