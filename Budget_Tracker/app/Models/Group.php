@@ -10,7 +10,7 @@ class Group extends Model
     use HasFactory;
 
     protected $fillable = [
-        'owner_id',  
+        'owner_id',
         'name',
         'invite_code',
     ];
@@ -44,7 +44,6 @@ class Group extends Model
 
     public function calculateTotalBalance(): float
     {
-        return $this->transactions()->income()->sum('amount')
-             - $this->transactions()->expense()->sum('amount');
+        return (float) $this->transactions()->sum('amount');
     }
 }
