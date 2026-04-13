@@ -105,7 +105,15 @@
         <div class="sidebar-footer">
             <div class="user-chip">
                 <a href='{{ route('profile.show') }}'>
-                    <div class="user-avatar">{{ strtoupper(substr(Auth::user()->username, 0, 2)) }}</div>
+                    <div class="user-avatar">
+                        @if(Auth::user()->profile_photo)
+                            <img src="{{ asset(Auth::user()->profile_photo) }}"
+                                 alt="{{ Auth::user()->username }}"
+                                 style="width:100%;height:100%;object-fit:cover;border-radius:50%;">
+                        @else
+                            {{ strtoupper(substr(Auth::user()->username, 0, 2)) }}
+                        @endif
+                    </div>
                 </a>
                 <div class="user-info">
                     <div class="user-name">{{ Auth::user()->username }}</div>

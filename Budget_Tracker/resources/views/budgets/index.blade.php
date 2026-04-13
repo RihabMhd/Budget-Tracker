@@ -50,8 +50,8 @@
                         <div class="cat-info">
                             <div class="cat-name">{{ $cat->name }}</div>
                             <div class="cat-spent">
-                                ${{ number_format($spent, 2) }} spent
-                                @if($budget) · limit ${{ number_format($limit, 2) }} @endif
+                                {{ number_format($spent, 2) }} DH spent
+                                @if($budget) · limit {{ number_format($limit, 2) }} DH @endif
                             </div>
                         </div>
 
@@ -120,7 +120,7 @@
                     </div>
 
                     <div class="form-group">
-                        <label class="form-label">Monthly Limit ($)</label>
+                        <label class="form-label">Monthly Limit (DH)</label>
                         <input type="number" name="monthly_limit" class="form-input" placeholder="e.g. 500" step="0.01" min="1" required>
                     </div>
 

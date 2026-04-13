@@ -28,7 +28,7 @@
         </div>
         <div class="stat-card accent-green">
             <div class="stat-label" style="color: rgba(255,255,255,0.7)">Total Spent Ever</div>
-            <div class="stat-value">${{ number_format($kpis['totalSpentAllTime'], 2) }}</div>
+            <div class="stat-value">{{ number_format($kpis['totalSpentAllTime'], 2) }}DH</div>
             <div class="stat-bg-decoration"></div>
         </div>
         </div>
