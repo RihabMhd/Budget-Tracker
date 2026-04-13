@@ -14,16 +14,13 @@ class ExportController extends Controller
 
   public function downloadMonthlyReport(Request $request)
 {
-    // 1. Get the full User Object (not just the username string)
     $user = Auth::user(); 
 
     $selectedMonth = $this->dashboardService->resolveSelectedMonth($request->get('month'));
     
-    // 2. Access properties from the object
     $allowance = (float) ($user->monthly_budget ?? 0);
 
     $data = [
-        // Pass the whole object or just the name to the view
         'userName'     => $user->name ?? $user->username, 
         'month'        => $selectedMonth->format('F Y'),
         'kpis'         => $this->dashboardService->getKpis($user->id, $selectedMonth, $allowance),

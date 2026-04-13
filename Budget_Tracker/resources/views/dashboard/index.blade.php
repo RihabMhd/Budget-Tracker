@@ -64,7 +64,7 @@
                         <line x1="12" y1="5" x2="12" y2="19" />
                         <line x1="5" y1="12" x2="19" y2="12" />
                     </svg>
-                    Add Expense
+                    Expense
                 </button>
                 <a href="{{ route('export.report', ['month' => $selectedMonth->format('Y-m')]) }}"
                     class="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
@@ -86,10 +86,10 @@
                         'type' => 'danger',
                         'icon' => '🚨',
                         'msg' =>
-                            "<strong>{$b['category']->name}</strong> budget exceeded — spent $" .
+                            "<strong>{$b['category']->name}</strong> budget exceeded — spent " .
                             number_format($b['current_spending'], 2) .
-                            " of $" .
-                            number_format($b['monthly_limit'], 2),
+                            " DH of " .
+                            number_format($b['monthly_limit'], 2) . " DH",
                     ];
                 } elseif ($b['percent_used'] >= 80) {
                     $alerts[] = [
@@ -145,7 +145,7 @@
                     </svg>
                 </div>
                 <div class="stat-label">Monthly Allowance</div>
-                <div class="stat-value">${{ number_format($monthlyAllowance, 2) }}</div>
+                <div class="stat-value">{{ number_format($monthlyAllowance, 2) }} DH</div>
                 <div class="stat-change up">↻ Resets every month</div>
                 <div class="stat-bg-decoration"></div>
             </div>
@@ -159,7 +159,7 @@
                     </svg>
                 </div>
                 <div class="stat-label">Spent This Month</div>
-                <div class="stat-value">${{ number_format($monthlyExpenses, 2) }}</div>
+                <div class="stat-value">{{ number_format($monthlyExpenses, 2) }} DH</div>
                 <div class="stat-change {{ $spentPercentage >= 80 ? 'down' : 'up' }}">
                     {{ round($spentPercentage) }}% of allowance used
                 </div>
@@ -175,12 +175,12 @@
                 </div>
                 <div class="stat-label">Remaining This Month</div>
                 <div class="stat-value" style="color:{{ $remaining < 0 ? '#9b1c1c' : '#1C1C1E' }};">
-                    {{ $remaining < 0 ? '-' : '' }}${{ number_format(abs($remaining), 2) }}
+                    {{ $remaining < 0 ? '-' : '' }}{{ number_format(abs($remaining), 2) }} DH
                 </div>
                 <div class="stat-budget-bar-wrap">
                     <div class="stat-budget-bar-meta">
                         <span>{{ round($spentPercentage) }}% spent</span>
-                        <span>of ${{ number_format($monthlyAllowance, 2) }}</span>
+                        <span>of {{ number_format($monthlyAllowance, 2) }} DH</span>
                     </div>
                     <div class="stat-budget-track">
                         <div class="stat-budget-fill"
@@ -255,11 +255,103 @@
                     </div>
                     <div class="chart-summary">
                         This month:
-                        <span style="color:#e07a10;font-weight:700;">−${{ number_format($monthlyExpenses, 0) }}</span>
+                        <span style="color:#e07a10;font-weight:700;">−{{ number_format($monthlyExpenses, 0) }} DH</span>
                         /
-                        <span style="color:#888;font-weight:700;">${{ number_format($monthlyAllowance, 0) }} allowance</span>
+                        <span style="color:#888;font-weight:700;">{{ number_format($monthlyAllowance, 0) }} DH allowance</span>
                     </div>
                 </div>
+
+                {{-- ── Daily Spending Heatmap ── --}}
+                @php
+                    // Build a day → total amount map from recent transactions
+                    $dailyTotals = [];
+                    foreach ($recentTransactions as $tx) {
+                        $day = (int) \Carbon\Carbon::parse($tx->date)->format('j');
+                        $dailyTotals[$day] = ($dailyTotals[$day] ?? 0) + $tx->amount;
+                    }
+                    $maxDay   = count($dailyTotals) ? max($dailyTotals) : 1;
+                    $daysInMonth = (int) $selectedMonth->format('t');
+                    $firstDow    = (int) \Carbon\Carbon::parse($selectedMonth->format('Y-m-01'))->format('N'); // 1=Mon … 7=Sun
+                    $firstDow    = $firstDow % 7; // convert to 0=Sun … 6=Sat (Sun-first grid)
+                    $today       = $isCurrentMonth ? (int) now()->format('j') : $daysInMonth;
+                @endphp
+
+                <div style="margin-top:22px;border-top:1px solid #f4f1eb;padding-top:18px;">
+                    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+                        <span style="font-size:12px;font-weight:700;color:#1a1a1a;font-family:'Syne',sans-serif;">Daily Activity</span>
+                        <div style="display:flex;align-items:center;gap:6px;">
+                            <span style="font-size:11px;color:#bbb;">Less</span>
+                            @foreach([0.1, 0.3, 0.55, 0.8, 1] as $op)
+                                <div style="width:10px;height:10px;border-radius:3px;background:#FBCF97;opacity:{{ $op }};"></div>
+                            @endforeach
+                            <span style="font-size:11px;color:#bbb;">More</span>
+                        </div>
+                    </div>
+
+                    {{-- Day-of-week headers --}}
+                    <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:4px;">
+                        @foreach(['S','M','T','W','T','F','S'] as $wd)
+                            <div style="text-align:center;font-size:10px;color:#bbb;font-weight:600;">{{ $wd }}</div>
+                        @endforeach
+                    </div>
+
+                    {{-- Calendar cells --}}
+                    <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:3px;">
+                        {{-- Leading empty cells --}}
+                        @for($e = 0; $e < $firstDow; $e++)
+                            <div style="height:28px;"></div>
+                        @endfor
+
+                        @for($d = 1; $d <= $daysInMonth; $d++)
+                            @php
+                                $amt      = $dailyTotals[$d] ?? 0;
+                                $isFuture = $d > $today;
+                                $intensity = $amt > 0 ? max(0.15, min(1, $amt / $maxDay)) : 0;
+                                if ($isFuture) {
+                                    $bg     = '#f4f1eb';
+                                    $color  = '#ddd';
+                                    $border = '1px solid transparent';
+                                } elseif ($amt > 0) {
+                                    $bg     = 'rgba(251,207,151,' . round($intensity, 2) . ')';
+                                    $color  = $intensity > 0.6 ? '#7a4800' : '#b06a00';
+                                    $border = '1px solid rgba(251,207,151,0.4)';
+                                } else {
+                                    $bg     = '#f9f8f5';
+                                    $color  = '#ccc';
+                                    $border = '1px solid #ede9e1';
+                                }
+                                $isToday = $isCurrentMonth && $d === $today;
+                            @endphp
+                            <div title="{{ $amt > 0 ? number_format($amt,2).' DH on '.$selectedMonth->format('M').' '.$d : 'No spending' }}"
+                                style="height:28px;border-radius:5px;background:{{ $bg }};border:{{ $isToday ? '2px solid #e07a10' : $border }};display:flex;align-items:center;justify-content:center;cursor:default;transition:transform 0.15s;"
+                                onmouseover="this.style.transform='scale(1.15)'" onmouseout="this.style.transform='scale(1)'">
+                                <span style="font-size:9px;font-weight:700;color:{{ $color }};line-height:1;">{{ $d }}</span>
+                            </div>
+                        @endfor
+                    </div>
+
+                    {{-- Mini stats row --}}
+                    @php
+                        $activeDays = count($dailyTotals);
+                        $avgPerDay  = $activeDays > 0 ? $monthlyExpenses / $activeDays : 0;
+                        $peakDay    = $dailyTotals ? array_search(max($dailyTotals), $dailyTotals) : null;
+                    @endphp
+                    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px;">
+                        <div style="background:#f9f8f5;border-radius:10px;padding:10px 12px;text-align:center;">
+                            <div style="font-size:13px;font-weight:800;font-family:'Syne',sans-serif;color:#1a1a1a;">{{ $activeDays }}</div>
+                            <div style="font-size:10px;color:#aaa;margin-top:1px;">Active days</div>
+                        </div>
+                        <div style="background:#f9f8f5;border-radius:10px;padding:10px 12px;text-align:center;">
+                            <div style="font-size:13px;font-weight:800;font-family:'Syne',sans-serif;color:#e07a10;">{{ number_format($avgPerDay, 0) }} DH</div>
+                            <div style="font-size:10px;color:#aaa;margin-top:1px;">Avg / active day</div>
+                        </div>
+                        <div style="background:#f9f8f5;border-radius:10px;padding:10px 12px;text-align:center;">
+                            <div style="font-size:13px;font-weight:800;font-family:'Syne',sans-serif;color:#1a1a1a;">{{ $peakDay ? $selectedMonth->format('M').' '.$peakDay : '—' }}</div>
+                            <div style="font-size:10px;color:#aaa;margin-top:1px;">Peak day</div>
+                        </div>
+                    </div>
+                </div>
+
             </div>
 
             {{-- RIGHT column: Savings Goal + Category Budgets --}}
@@ -273,12 +365,12 @@
                         <div class="goal-amounts">
                             <div>
                                 <div style="font-size:11px;color:#555;margin-bottom:2px;">SAVED SO FAR</div>
-                                <div class="goal-saved">${{ number_format($goalSaved) }}</div>
+                                <div class="goal-saved">{{ number_format($goalSaved) }} DH</div>
                             </div>
                             <div style="text-align:right;">
                                 <div style="font-size:11px;color:#555;margin-bottom:2px;">TARGET</div>
                                 <div style="font-family:'Syne',sans-serif;font-size:16px;font-weight:700;color:#888;">
-                                    ${{ number_format($goalTarget) }}
+                                    {{ number_format($goalTarget) }} DH
                                 </div>
                             </div>
                         </div>
@@ -287,7 +379,7 @@
                         </div>
                         <div class="goal-pct">
                             <strong>{{ $goalPct }}% complete</strong> —
-                            ${{ number_format($goalTarget - $goalSaved) }} to go
+                            {{ number_format($goalTarget - $goalSaved) }} DH to go
                         </div>
                     @else
                         <div class="goal-title">🎯 No active goal</div>
@@ -319,8 +411,8 @@
                                         {{ $budget['category']->name }}
                                     </div>
                                     <div class="budget-item-amounts">
-                                        ${{ number_format($budget['current_spending'], 2) }}
-                                        <span>/ ${{ number_format($budget['monthly_limit'], 2) }}</span>
+                                        {{ number_format($budget['current_spending'], 2) }} DH
+                                        <span>/ {{ number_format($budget['monthly_limit'], 2) }} DH</span>
                                     </div>
                                 </div>
                                 <div class="budget-track-wrap">
@@ -359,7 +451,7 @@
                             </div>
                         </div>
                         <div>
-                            <div class="category-amount">${{ number_format($cat['amount'], 2) }}</div>
+                            <div class="category-amount">{{ number_format($cat['amount'], 2) }} DH</div>
                             <div class="category-pct">{{ $cat['pct'] }}%</div>
                         </div>
                     </div>
@@ -389,7 +481,7 @@
                             </div>
                         </div>
                         <div class="tx-amount debit">
-                            −${{ number_format($tx->amount, 2) }}
+                            −{{ number_format($tx->amount, 2) }} DH
                         </div>
                     </div>
                 @empty

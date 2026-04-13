@@ -40,7 +40,7 @@ class TransactionService
 
     public function updateTransaction(Transaction $transaction, array $data, $file = null, bool $removeReceipt = false): Transaction
     {
-        unset($data['type']); // type column removed
+        unset($data['type']);
 
         if ($file) {
             $this->deleteReceipt($transaction->receipt_image_path);

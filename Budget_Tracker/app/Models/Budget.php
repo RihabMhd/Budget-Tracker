@@ -19,8 +19,6 @@ class Budget extends Model
         'monthly_limit' => 'float',
     ];
 
-    // ── Relationships ─────────────────────────────────────────────
-
     public function category()
     {
         return $this->belongsTo(Category::class);
@@ -30,8 +28,6 @@ class Budget extends Model
     {
         return $this->belongsTo(User::class);
     }
-
-    // ── Accessors ─────────────────────────────────────────────────
 
     public function getCurrentMonthSpendingAttribute(): float
     {

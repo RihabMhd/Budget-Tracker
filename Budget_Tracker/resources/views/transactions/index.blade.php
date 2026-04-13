@@ -150,7 +150,9 @@
                             {{-- Type column removed --}}
                             <td style="color:#888;">{{ $tx->date->format('M d, Y') }}</td>
                             <td>
-                                <span class="amount-cell debit">{{ $tx->formatted_amount }}</span>
+                                <span class="amount-cell debit" style="color:#e05c5c;">
+                                    −{{ number_format($tx->amount, 2) }} DH
+                                </span>
                             </td>
                             <td>
                                 @if ($tx->receipt_image_path)

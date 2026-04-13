@@ -28,19 +28,19 @@ class DashboardController extends Controller
         $dailySafeToSpend = $this->dashboardService->getDailyAllowance($kpis['remaining']);
         
         return view('dashboard.index', [
-            // Allowance & spending
+            // allowances and spendings
             'monthlyAllowance'  => $monthlyAllowance,
             'monthlyExpenses'   => $kpis['monthlyExpenses'],
             'remaining'         => $kpis['remaining'],
             'spentPercentage'   => $kpis['spentPercentage'],
             'totalSpentAllTime' => $kpis['totalSpentAllTime'],
 
-            // Chart
+            // charts
             'chartMonths'       => $chartData['chartMonths'],
             'chartExpenses'     => $chartData['chartExpenses'],
             'chartAllowances'   => $chartData['chartAllowances'],
 
-            // Goal
+            // goals
             'goal'              => $goalData['goal'],
             'goalSaved'         => $goalData['goalSaved'],
             'goalTarget'        => $goalData['goalTarget'],
@@ -48,13 +48,13 @@ class DashboardController extends Controller
             'goalTitle'         => $goalData['goalTitle'],
             'goalDeadline'      => $goalData['goalDeadline'],
 
-            // Budgets & categories
+            // budgets and categories
             'budgets'            => $budgets,
             'spendingByCategory' => $spendingByCategory,
             'categories'         => $categories,
             'recentTransactions' => $recentTransactions,
 
-            // Month navigation
+            // months navigation
             'selectedMonth'     => $selectedMonth,
             'prevMonth'         => $selectedMonth->copy()->subMonth()->format('Y-m'),
             'nextMonth'         => $selectedMonth->copy()->addMonth()->format('Y-m'),

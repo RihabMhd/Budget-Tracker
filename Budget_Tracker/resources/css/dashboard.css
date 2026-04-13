@@ -937,7 +937,7 @@ canvas {
 }
 
 .panel {
-    min-height: 400px;
+    min-height: unset;
 }
 #analyticsTrendChart,
 #categoryDonutChart {
