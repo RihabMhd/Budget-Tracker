@@ -167,10 +167,53 @@
         .tx-total { font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 700; color: #1a1a1a; white-space: nowrap; }
         .tx-total-sub { font-size: 11px; color: #bbb; }
 
+        /* FIX: income vs expense colouring */
+        .tx-total.income { color: #2EB872; }
+
         .tx-share { font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 700; text-align: right; white-space: nowrap; }
-        .tx-share.owe  { color: #e05c5c; }
-        .tx-share.paid { color: #2EB872; font-size: 11px; font-weight: 600; background: #f0fdf4; padding: 3px 8px; border-radius: 99px; }
-        .tx-share.none { color: #ddd; }
+        .tx-share.owe        { color: #e05c5c; }
+        .tx-share.paid       { color: #2EB872; font-size: 11px; font-weight: 600; background: #f0fdf4; padding: 3px 8px; border-radius: 99px; }
+        .tx-share.settlement { color: #2EB872; font-size: 11px; font-weight: 600; background: #f0fdf4; padding: 3px 8px; border-radius: 99px; }
+        .tx-share.none       { color: #ddd; }
+
+        /* FIX: settlement row — subtle tint so it's visually distinct */
+        tr.settlement-row td { background: #f9fef9; }
+
+        /* ── Activity pagination ── */
+        .activity-pagination {
+            display: flex; align-items: center; justify-content: space-between;
+            margin-top: 18px; padding-top: 16px; border-top: 1px solid #f4f1eb;
+        }
+        .pagination-info {
+            font-size: 12px; color: #aaa; font-weight: 500;
+        }
+        .pagination-links {
+            display: flex; align-items: center; gap: 4px;
+        }
+        .pagination-links a,
+        .pagination-links span {
+            display: flex; align-items: center; justify-content: center;
+            width: 32px; height: 32px; border-radius: 10px;
+            font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 700;
+            text-decoration: none; transition: all 0.18s;
+            border: 1.5px solid transparent;
+        }
+        .pagination-links a {
+            color: #555; background: #f5f3ee; border-color: #ede9e1;
+        }
+        .pagination-links a:hover {
+            background: #FBCF97; border-color: #f7bc71; color: #1C1C1E;
+        }
+        .pagination-links span.current {
+            background: #1a1a1a; color: #fff; border-color: #1a1a1a;
+        }
+        .pagination-links span.disabled {
+            color: #ccc; background: #fafafa; border-color: #f0ede7; cursor: not-allowed;
+        }
+        .pagination-arrow svg {
+            width: 13px; height: 13px; stroke: currentColor; fill: none;
+            stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round;
+        }
 
         /* ── Modal ── */
         .modal-overlay {
@@ -343,7 +386,12 @@
 
         {{-- Activity --}}
         <div class="panel activity-panel">
-            <div class="panel-title">Group Activity</div>
+            <div class="panel-title">
+                Group Activity
+                @if($recent_transactions->total() > 0)
+                    <span class="count-pill">{{ $recent_transactions->total() }}</span>
+                @endif
+            </div>
 
             @if($recent_transactions->isEmpty())
                 <div class="activity-empty">
@@ -363,10 +411,12 @@
                     <tbody>
                         @foreach($recent_transactions as $tx)
                         @php
-                            $mySplit = $tx->expenseSplits->firstWhere('user_id', auth()->id());
-                            $iPaid   = $tx->user_id === auth()->id();
+                            $mySplit      = $tx->expenseSplits->firstWhere('user_id', auth()->id());
+                            $iPaid        = $tx->user_id === auth()->id();
+                            $isSettlement = in_array($tx->type ?? 'expense', ['settlement_paid', 'settlement_received']);
+                            $isIncome     = in_array($tx->type ?? 'expense', ['income', 'settlement_received']);
                         @endphp
-                        <tr>
+                        <tr class="{{ $isSettlement ? 'settlement-row' : '' }}">
                             <td>
                                 <span class="tx-who">
                                     <span class="tx-who-dot {{ $iPaid ? 'self' : '' }}"></span>
@@ -378,11 +428,17 @@
                                 <div class="tx-date">{{ $tx->date->format('d M Y') }}</div>
                             </td>
                             <td>
-                                <div class="tx-total">{{ number_format($tx->amount, 2) }}</div>
+                                {{-- FIX: show + prefix and green colour for income/settlement received --}}
+                                <div class="tx-total {{ $isIncome ? 'income' : '' }}">
+                                    {{ $isIncome ? '+' : '' }}{{ number_format($tx->amount, 2) }}
+                                </div>
                                 <div class="tx-total-sub">MAD</div>
                             </td>
                             <td style="text-align:right;">
-                                @if($iPaid)
+                                @if($isSettlement)
+                                    {{-- Settlements are not splits — show a neutral badge --}}
+                                    <span class="tx-share settlement">Settlement</span>
+                                @elseif($iPaid)
                                     <span class="tx-share paid">You paid</span>
                                 @elseif($mySplit)
                                     <span class="tx-share owe">{{ number_format($mySplit->amount_share, 2) }} MAD</span>
@@ -394,6 +450,49 @@
                         @endforeach
                     </tbody>
                 </table>
+
+                {{-- ── Pagination ── --}}
+                @if($recent_transactions->hasPages())
+                <div class="activity-pagination">
+                    <div class="pagination-info">
+                        Showing {{ $recent_transactions->firstItem() }}–{{ $recent_transactions->lastItem() }}
+                        of {{ $recent_transactions->total() }} transactions
+                    </div>
+                    <div class="pagination-links">
+                        {{-- Previous --}}
+                        @if($recent_transactions->onFirstPage())
+                            <span class="disabled pagination-arrow" title="Previous">
+                                <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+                            </span>
+                        @else
+                            <a href="{{ $recent_transactions->previousPageUrl() }}" class="pagination-arrow" title="Previous">
+                                <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+                            </a>
+                        @endif
+
+                        {{-- Page numbers --}}
+                        @foreach($recent_transactions->getUrlRange(1, $recent_transactions->lastPage()) as $page => $url)
+                            @if($page == $recent_transactions->currentPage())
+                                <span class="current">{{ $page }}</span>
+                            @else
+                                <a href="{{ $url }}">{{ $page }}</a>
+                            @endif
+                        @endforeach
+
+                        {{-- Next --}}
+                        @if($recent_transactions->hasMorePages())
+                            <a href="{{ $recent_transactions->nextPageUrl() }}" class="pagination-arrow" title="Next">
+                                <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+                            </a>
+                        @else
+                            <span class="disabled pagination-arrow" title="Next">
+                                <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+                            </span>
+                        @endif
+                    </div>
+                </div>
+                @endif
+
             @endif
         </div>
     </div>

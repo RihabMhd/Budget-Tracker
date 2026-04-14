@@ -129,7 +129,13 @@
                         <tr>
                             <td>
                                 <div style="display:flex;align-items:center;gap:12px;">
-                                    <div class="tx-icon-cell" style="background:#fff3e0;">💸</div>
+                                    @php
+                                        $isIncome = in_array(strtolower($tx->type), ['income', 'settlement_received']);
+                                    @endphp
+                                    <div class="tx-icon-cell"
+                                        style="background: {{ $isIncome ? '#e8f5e9' : '#fff3e0' }};">
+                                        {{ $isIncome ? '💰' : '💸' }}
+                                    </div>
                                     <div>
                                         <div style="font-weight:600;color:#1a1a1a;">{{ $tx->description ?? '—' }}</div>
                                         <div style="font-size:11px;color:#bbb;">ID #{{ $tx->id }}</div>
@@ -150,8 +156,10 @@
                             {{-- Type column removed --}}
                             <td style="color:#888;">{{ $tx->date->format('M d, Y') }}</td>
                             <td>
-                                <span class="amount-cell debit" style="color:#e05c5c;">
-                                    −{{ number_format($tx->amount, 2) }} DH
+
+                                <span class="amount-cell {{ $isIncome ? 'credit' : 'debit' }}"
+                                    style="color: {{ $isIncome ? '#2e7d32' : '#e05c5c' }};">
+                                    {{ $isIncome ? '+' : '−' }}{{ number_format($tx->amount, 2) }} DH
                                 </span>
                             </td>
                             <td>

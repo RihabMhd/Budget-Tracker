@@ -161,6 +161,7 @@ class GroupService
                 'group_id'    => $group->id,
                 'category_id' => $category->id,
                 'amount'      => $totalOwed,
+                'type'        => 'settlement_paid',
                 'date'        => now(),
                 'description' => "Settlement paid to {$creditor->username}",
             ]);
@@ -171,6 +172,7 @@ class GroupService
                 'group_id'    => $group->id,
                 'category_id' => $category->id,
                 'amount'      => $totalOwed,
+                'type'        => 'settlement_received',
                 'date'        => now(),
                 'description' => "Settlement received from {$debtor->username}",
             ]);

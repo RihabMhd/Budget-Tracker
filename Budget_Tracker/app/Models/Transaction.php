@@ -19,11 +19,13 @@ class Transaction extends Model
         'date',
         'description',
         'receipt_image_path',
+        'type'
     ];
 
     protected $casts = [
         'date'   => 'date',
         'amount' => 'float',
+        'type'   => 'string'
     ];
 
     public function user()
@@ -54,12 +56,7 @@ class Transaction extends Model
     public function scopeThisMonth($query)
     {
         return $query->whereMonth('date', Carbon::now()->month)
-                     ->whereYear('date', Carbon::now()->year);
-    }
-
-    public function getFormattedAmountAttribute(): string
-    {
-        return '−$' . number_format($this->amount, 2);
+            ->whereYear('date', Carbon::now()->year);
     }
 
     public function getReceiptUrlAttribute(): ?string
@@ -67,5 +64,27 @@ class Transaction extends Model
         return $this->receipt_image_path
             ? Storage::url($this->receipt_image_path)
             : null;
+    }
+    public function getFormattedAmountAttribute(): string
+    {
+        return match ($this->type) {
+            'income', 'settlement_received' => '+DH' . number_format($this->amount, 2),
+            default                         => '−DH' . number_format($this->amount, 2),
+        };
+    }
+
+    public function isIncome(): bool
+    {
+        return in_array($this->type, ['income', 'settlement_received']);
+    }
+
+    public function scopeExpensesOnly($query)
+    {
+        return $query->whereIn('type', ['expense']);
+    }
+
+    public function isCredit(): bool
+    {
+        return in_array($this->type, ['income', 'settlement_received']);
     }
 }

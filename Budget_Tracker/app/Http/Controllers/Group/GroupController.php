@@ -107,9 +107,8 @@ class GroupController extends Controller
 
         $recent_transactions = $group->transactions()
             ->with(['user', 'expenseSplits'])
-            ->latest()
-            ->take(10)
-            ->get();
+            ->latest('date')
+            ->paginate(5);
 
         $categories = \App\Models\Category::all();
 

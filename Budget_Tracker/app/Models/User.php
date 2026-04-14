@@ -29,7 +29,7 @@ class User extends Authenticatable
         'last_activity'  => 'datetime',
         'points'         => 'integer',
         'current_streak' => 'integer',
-        'monthly_budget' => 'float',      
+        'monthly_budget' => 'float',
     ];
 
     public function transactions()
@@ -77,5 +77,10 @@ class User extends Authenticatable
     public function ownedGroups()
     {
         return $this->hasMany(Group::class, 'owner_id');
+    }
+
+    public function adminGroups()
+    {
+        return $this->hasMany(Group::class, 'admin_id');
     }
 }
