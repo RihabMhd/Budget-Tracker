@@ -38,7 +38,7 @@
         {{-- Header --}}
         <div class="page-header">
             <div>
-                <div class="page-title">Expenses</div>
+                <div class="page-title">Transactions</div>
                 <div class="page-sub">{{ $transactions->total() }} records found</div>
             </div>
             <button class="add-btn" data-open-modal="add-modal">
