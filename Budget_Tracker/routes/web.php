@@ -23,6 +23,9 @@ use App\Http\Controllers\User\GoalController;
 use App\Http\Controllers\User\AnalyticsController;
 use App\Http\Controllers\User\ExportController;
 use App\Http\Controllers\User\ChatController;
+use App\Http\Controllers\Group\GroupController;
+use App\Http\Controllers\Group\GroupTransactionController;
+use App\Http\Controllers\Group\GroupMemberController;
 
 Route::get('/', function () {
     return view('auth.login');
@@ -82,4 +85,15 @@ Route::middleware('auth')->group(function () {
     Route::get('/export/monthly-report', [ExportController::class, 'downloadMonthlyReport'])->name('export.report');
 
     Route::post('/api/ai-chat', ChatController::class)->name('ai.chat');
+
+    Route::prefix('groups')->name('groups.')->group(function () {
+        Route::get('/',    [GroupController::class, 'index'])->name('index');
+        Route::post('/',   [GroupController::class, 'store'])->name('store');
+        Route::post('/join', [GroupController::class, 'join'])->name('join');
+        Route::get('/{group}',  [GroupController::class, 'show'])->name('show');
+        Route::post('/{group}/transactions', [GroupTransactionController::class, 'store'])->name('transactions.store');
+        Route::delete('/{group}/members/{user}',          [GroupMemberController::class, 'destroy'])->name('members.destroy');
+        Route::post('/{group}/members/{user}/transfer',   [GroupMemberController::class, 'transfer'])->name('members.transfer');
+        Route::post('/{group}/members/{user}/settle',     [GroupMemberController::class, 'settle'])->name('members.settle');
+    });
 });
