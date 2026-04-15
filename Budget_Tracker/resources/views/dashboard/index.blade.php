@@ -25,15 +25,15 @@
                 <div class="topbar-title">{{ $greeting }}, {{ Auth::user()->name ?? Auth::user()->username }}</div>
                 <div class="topbar-subtitle">Here's your spending snapshot for {{ $selectedMonth->format('F Y') }}.</div>
             </div>
-            <div style="display:flex;align-items:center;gap:12px;">
+
+            {{-- Topbar actions: month switcher + buttons --}}
+            <div class="topbar-actions">
                 {{-- Month switcher --}}
-                <div
-                    style="display:flex;align-items:center;gap:0;background:#fff;border:1px solid #e8e4dc;border-radius:14px;overflow:hidden;">
+                <div style="display:flex;align-items:center;gap:0;background:#fff;border:1px solid #e8e4dc;border-radius:14px;overflow:hidden;">
                     <a href="{{ route('dashboard') }}?month={{ $prevMonth }}"
                         style="display:flex;align-items:center;padding:10px 14px;color:#888;text-decoration:none;transition:all 0.2s;border-right:1px solid #e8e4dc;"
                         onmouseover="this.style.background='#F5F3EE'" onmouseout="this.style.background='transparent'">
-                        <svg viewBox="0 0 24 24"
-                            style="width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round;">
+                        <svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round;">
                             <polyline points="15,18 9,12 15,6" />
                         </svg>
                     </a>
@@ -44,21 +44,19 @@
                         <a href="{{ route('dashboard') }}?month={{ $nextMonth }}"
                             style="display:flex;align-items:center;padding:10px 14px;color:#888;text-decoration:none;transition:all 0.2s;border-left:1px solid #e8e4dc;"
                             onmouseover="this.style.background='#F5F3EE'" onmouseout="this.style.background='transparent'">
-                            <svg viewBox="0 0 24 24"
-                                style="width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round;">
+                            <svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round;">
                                 <polyline points="9,18 15,12 9,6" />
                             </svg>
                         </a>
                     @else
-                        <span
-                            style="display:flex;align-items:center;padding:10px 14px;color:#ddd;border-left:1px solid #e8e4dc;cursor:not-allowed;">
-                            <svg viewBox="0 0 24 24"
-                                style="width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round;">
+                        <span style="display:flex;align-items:center;padding:10px 14px;color:#ddd;border-left:1px solid #e8e4dc;cursor:not-allowed;">
+                            <svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round;">
                                 <polyline points="9,18 15,12 9,6" />
                             </svg>
                         </span>
                     @endif
                 </div>
+
                 <button class="quick-add-btn" style="width:auto;padding:13px 20px;" data-open-modal="add-modal">
                     <svg viewBox="0 0 24 24">
                         <line x1="12" y1="5" x2="12" y2="19" />
@@ -66,10 +64,11 @@
                     </svg>
                     Expense
                 </button>
+
                 <a href="{{ route('export.report', ['month' => $selectedMonth->format('Y-m')]) }}"
-                    class="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
-                    <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"
-                        viewBox="0 0 24 24">
+                    class="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+                    style="white-space:nowrap;">
+                    <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                         <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3" />
                     </svg>
                     <span>Export PDF</span>
@@ -220,12 +219,7 @@
         </div>
 
         {{-- ── Mid grid: chart + right column ── --}}
-        {{--
-            Layout: 3-column grid on wide screens
-            Col 1-2: chart panel (spans 2 cols)
-            Col 3: goal card + category budgets stacked
-        --}}
-        <div style="display:grid;grid-template-columns:1fr 320px;gap:20px;align-items:start;">
+        <div class="mid-grid-auto">
 
             {{-- LEFT: Spending bar chart --}}
             <div class="panel" style="padding:22px 24px;">
@@ -263,21 +257,20 @@
 
                 {{-- ── Daily Spending Heatmap ── --}}
                 @php
-                    // Build a day → total amount map from recent transactions
                     $dailyTotals = [];
                     foreach ($recentTransactions as $tx) {
                         $day = (int) \Carbon\Carbon::parse($tx->date)->format('j');
                         $dailyTotals[$day] = ($dailyTotals[$day] ?? 0) + $tx->amount;
                     }
-                    $maxDay   = count($dailyTotals) ? max($dailyTotals) : 1;
+                    $maxDay      = count($dailyTotals) ? max($dailyTotals) : 1;
                     $daysInMonth = (int) $selectedMonth->format('t');
-                    $firstDow    = (int) \Carbon\Carbon::parse($selectedMonth->format('Y-m-01'))->format('N'); // 1=Mon … 7=Sun
-                    $firstDow    = $firstDow % 7; // convert to 0=Sun … 6=Sat (Sun-first grid)
+                    $firstDow    = (int) \Carbon\Carbon::parse($selectedMonth->format('Y-m-01'))->format('N');
+                    $firstDow    = $firstDow % 7;
                     $today       = $isCurrentMonth ? (int) now()->format('j') : $daysInMonth;
                 @endphp
 
                 <div style="margin-top:22px;border-top:1px solid #f4f1eb;padding-top:18px;">
-                    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+                    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px;">
                         <span style="font-size:12px;font-weight:700;color:#1a1a1a;font-family:'Syne',sans-serif;">Daily Activity</span>
                         <div style="display:flex;align-items:center;gap:6px;">
                             <span style="font-size:11px;color:#bbb;">Less</span>
@@ -297,7 +290,6 @@
 
                     {{-- Calendar cells --}}
                     <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:3px;">
-                        {{-- Leading empty cells --}}
                         @for($e = 0; $e < $firstDow; $e++)
                             <div style="height:28px;"></div>
                         @endfor
@@ -336,7 +328,7 @@
                         $avgPerDay  = $activeDays > 0 ? $monthlyExpenses / $activeDays : 0;
                         $peakDay    = $dailyTotals ? array_search(max($dailyTotals), $dailyTotals) : null;
                     @endphp
-                    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px;">
+                    <div class="heatmap-stats-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px;">
                         <div style="background:#f9f8f5;border-radius:10px;padding:10px 12px;text-align:center;">
                             <div style="font-size:13px;font-weight:800;font-family:'Syne',sans-serif;color:#1a1a1a;">{{ $activeDays }}</div>
                             <div style="font-size:10px;color:#aaa;margin-top:1px;">Active days</div>
