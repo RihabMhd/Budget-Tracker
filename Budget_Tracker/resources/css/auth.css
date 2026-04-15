@@ -1,4 +1,4 @@
- body {
+body {
      font-family: 'Poppins', sans-serif;
      background-color: #F9F7F2;
      min-height: 100vh;
@@ -12,12 +12,18 @@
      display: inline-flex;
      align-items: center;
      justify-content: center;
-     padding: 0.6rem 1.75rem;
+     padding: 0.6rem 1.2rem;
      font-size: 0.875rem;
      font-weight: 600;
      border-radius: 8px;
      transition: all 0.2s ease-in-out;
      border: 1px solid rgba(0, 0, 0, 0.05);
+ }
+
+ @media (min-width: 768px) {
+    .btn-modern {
+        padding: 0.6rem 1.75rem;
+    }
  }
 
  .btn-primary {
@@ -51,7 +57,7 @@
      justify-content: center;
      position: relative;
      z-index: 10;
-     padding-bottom: 5vh;
+     padding: 2rem 0; /* Changed for better mobile scrolling */
  }
 
  .illustration-layer {
@@ -63,4 +69,18 @@
      align-items: flex-end;
      padding: 0 0 2% 0;
      pointer-events: none;
+ }
+
+ /* Input override for styling */
+ .custom-input {
+    background-color: #F9F7F2;
+    border: 1px solid #e5e7eb;
+    transition: all 0.2s ease;
+ }
+
+ .custom-input:focus {
+    border-color: #FBCF97;
+    background-color: #fff;
+    outline: none;
+    box-shadow: 0 0 0 4px rgba(251, 207, 151, 0.15);
  }
