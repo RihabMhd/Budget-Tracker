@@ -42,7 +42,7 @@
                     $pct       = $limit > 0 ? min(100, round(($spent / $limit) * 100)) : 0;
                     $fillColor = $pct >= 90 ? '#ef4444' : ($cat->color ?? '#FBCF97');
                 @endphp
-                
+
                 <div>
                     <div class="cat-row">
                         <div class="cat-dot" style="background:{{ $cat->color ?? '#FBCF97' }};"></div>
@@ -84,7 +84,7 @@
                             @csrf
                             <input type="hidden" name="category_id" value="{{ $cat->id }}">
                             <input type="number" name="monthly_limit" step="0.01" min="1"
-                                   value="{{ $budget?->monthly_limit }}" required>
+                                   value="{{ $budget?->monthly_limit }}" placeholder="New limit (DH)" required>
                             <button type="submit" class="save-btn">Save</button>
                             <button type="button" class="cancel-btn" onclick="toggleEdit({{ $cat->id }})">Cancel</button>
                         </form>
@@ -121,7 +121,9 @@
 
                     <div class="form-group">
                         <label class="form-label">Monthly Limit (DH)</label>
-                        <input type="number" name="monthly_limit" class="form-input" placeholder="e.g. 500" step="0.01" min="1" required>
+                        <input type="number" name="monthly_limit" class="form-input"
+                               placeholder="e.g. 500" step="0.01" min="1"
+                               style="min-width:0;" required>
                     </div>
 
                     <button type="submit" class="btn-add">Save Budget</button>

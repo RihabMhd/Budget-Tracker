@@ -4,6 +4,109 @@
 
 @push('styles')
     @vite(['resources/css/app.css', 'resources/css/profile.css', 'resources/css/transactions.css'])
+    <style>
+        /* ── Responsive: Savings Goals ── */
+
+        /* Page header: title + button side-by-side → stacked on mobile */
+        .page-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        /* Goals grid: 3 cols → 2 → 1 */
+        .goals-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+
+        /* Goal card footer: input + buttons in a row */
+        .goal-card-footer {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        /* Modal sheet behaviour on mobile */
+        @media (max-width: 1100px) {
+            .goals-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 700px) {
+            .main-content {
+                margin-left: 0;
+                padding: 20px 16px;
+            }
+
+            .page-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .page-header .add-btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .goals-grid {
+                grid-template-columns: 1fr;
+                gap: 14px;
+            }
+
+            /* Two-col form row collapses to single column */
+            .two-col {
+                grid-template-columns: 1fr !important;
+            }
+
+            /* Modal slides up from bottom */
+            .modal-overlay {
+                align-items: flex-end !important;
+                padding: 0 !important;
+            }
+
+            .modal-box {
+                border-radius: 24px 24px 0 0 !important;
+                max-height: 92vh;
+                overflow-y: auto;
+                padding: 24px 20px !important;
+            }
+
+            /* Goal card footer: stack form + buttons */
+            .goal-card-footer {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .goal-card-footer form {
+                flex: unset !important;
+                width: 100%;
+            }
+
+            .goal-card-footer .action-btn {
+                width: 100% !important;
+                height: 38px !important;
+                justify-content: center;
+            }
+        }
+
+        @media (max-width: 420px) {
+            .goal-card-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+            }
+
+            .goal-deadline-badge {
+                align-self: flex-start;
+            }
+        }
+    </style>
 @endpush
 
 @section('content')
@@ -68,9 +171,9 @@
                             style="display:flex; flex:1; gap:8px;">
                             @csrf
                             <input type="number" name="amount" step="0.01" placeholder="+ Amount"
-                                class="quick-add-input">
+                                class="quick-add-input" style="flex:1; min-width:0;">
                             <button type="submit" class="action-btn"
-                                style="background: #e8f5ed; color: #2EB872; border: none; width: 38px; height: 38px;">
+                                style="background: #e8f5ed; color: #2EB872; border: none; width: 38px; height: 38px; flex-shrink:0;">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
                                     fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
                                     stroke-linejoin="round">
@@ -80,7 +183,8 @@
                             </button>
                         </form>
 
-                        <a href="{{ route('goals.edit', $goal) }}" class="action-btn" style="width: 38px; height: 38px;">
+                        <a href="{{ route('goals.edit', $goal) }}" class="action-btn"
+                            style="width: 38px; height: 38px; flex-shrink:0;">
                             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
                                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                                 stroke-linejoin="round">

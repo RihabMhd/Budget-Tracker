@@ -101,6 +101,8 @@
     margin-bottom: 14px;
     position: relative;
     z-index: 1;
+    flex-wrap: wrap;
+    gap: 8px;
 }
 
 .monthly-spent-label { font-size: 11px; color: #555; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 3px; }
@@ -137,10 +139,12 @@
     margin-top: 18px;
     position: relative;
     z-index: 1;
+    flex-wrap: wrap;
 }
 
 .set-input {
     flex: 1;
+    min-width: 120px;
     padding: 12px 16px;
     background: #2a2a2c;
     border: 1.5px solid #333;
@@ -172,6 +176,16 @@
 
 .set-btn:hover { background: #f7bc71; transform: translateY(-1px); }
 
+/* ── Page header ── */
+.page-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 24px;
+}
+
 /* ── Section grid ── */
 .section-grid {
     display: grid;
@@ -187,17 +201,18 @@
     gap: 14px;
     padding: 14px 0;
     border-bottom: 1px solid #f4f1eb;
+    flex-wrap: wrap;
 }
 
 .cat-row:last-child { border-bottom: none; padding-bottom: 0; }
 
 .cat-dot  { width: 11px; height: 11px; border-radius: 50%; flex-shrink: 0; }
 
-.cat-info   { flex: 1; min-width: 0; }
+.cat-info   { flex: 1; min-width: 120px; }
 .cat-name   { font-size: 13px; font-weight: 600; color: #1a1a1a; }
 .cat-spent  { font-size: 11px; color: #bbb; margin-top: 2px; }
 
-.cat-progress { width: 90px; }
+.cat-progress { width: 90px; flex-shrink: 0; }
 .cat-track { height: 5px; background: #f0ece4; border-radius: 99px; overflow: hidden; margin-bottom: 3px; }
 .cat-fill  { height: 100%; border-radius: 99px; transition: width 0.7s ease; }
 .cat-pct   { font-size: 10px; color: #bbb; text-align: right; }
@@ -263,12 +278,22 @@
     margin-top: 8px;
     align-items: center;
     gap: 10px;
+    flex-wrap: wrap;
 }
 
 .inline-edit.open { display: flex; }
 
+.edit-form-flex {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    flex-wrap: wrap;
+}
+
 .inline-edit input {
     flex: 1;
+    min-width: 100px;
     padding: 9px 14px;
     border-radius: 10px;
     border: 1.5px solid #ede9e1;
@@ -291,6 +316,7 @@
     font-weight: 700;
     color: #1C1C1E;
     cursor: pointer;
+    white-space: nowrap;
 }
 
 .inline-edit .cancel-btn {
@@ -301,6 +327,7 @@
     font-size: 12px;
     color: #aaa;
     cursor: pointer;
+    white-space: nowrap;
 }
 
 /* ── Add budget panel ── */
@@ -340,13 +367,105 @@
     align-items: flex-start;
 }
 
-/* ── Responsive ── */
-@media (max-width: 1200px) {
-    .overview-grid { grid-template-columns: repeat(2, 1fr); }
-    .section-grid  { grid-template-columns: 1fr; }
-    .add-panel     { position: static; }
+/* ── Animations ── */
+@keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
 }
 
-@media (max-width: 768px) {
+/* ════════════════════════════════════════
+   RESPONSIVE BREAKPOINTS
+   ════════════════════════════════════════ */
+
+/* ── Tablet landscape (≤ 1200px) ── */
+@media (max-width: 1200px) {
+    .overview-grid { grid-template-columns: repeat(2, 1fr); }
+
+    .section-grid {
+        grid-template-columns: 1fr;
+    }
+
+    /* Sidebar "Quick Add" moves below the list, no longer sticky */
+    .add-panel { position: static; }
+}
+
+/* ── Tablet portrait (≤ 900px) ── */
+@media (max-width: 900px) {
+    .main-content {
+        margin-left: 0;
+        padding: 24px 20px;
+    }
+}
+
+/* ── Mobile (≤ 640px) ── */
+@media (max-width: 640px) {
+    .main-content {
+        padding: 16px 14px;
+    }
+
     .overview-grid { grid-template-columns: 1fr; }
+
+    /* Cat row: let info + progress/buttons wrap to a second line */
+    .cat-row {
+        row-gap: 8px;
+    }
+
+    /* Progress bar goes full-width on its own line */
+    .cat-progress {
+        width: 100%;
+        order: 10; /* push below info */
+    }
+
+    /* Buttons stay together but shift right */
+    .cat-btns {
+        margin-left: auto;
+    }
+
+    /* Inline edit form: stack vertically */
+    .edit-form-flex {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .inline-edit input,
+    .inline-edit .save-btn,
+    .inline-edit .cancel-btn {
+        width: 100%;
+        text-align: center;
+    }
+
+    /* Monthly card amounts: stack instead of side-by-side */
+    .monthly-amounts {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .monthly-limit-label,
+    .monthly-limit-val {
+        text-align: left;
+    }
+
+    .monthly-spent-val {
+        font-size: 24px;
+    }
+
+    /* Set-form (allowance input + button): stack on very small screens */
+    .set-form {
+        flex-direction: column;
+    }
+
+    .set-btn {
+        width: 100%;
+        text-align: center;
+    }
+
+    /* Panel padding tighter */
+    .panel {
+        padding: 18px 16px !important;
+    }
+
+    /* Overview card value font */
+    .ov-value {
+        font-size: 22px;
+    }
 }
