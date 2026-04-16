@@ -33,15 +33,24 @@ class DashboardService
         $monthlyExpenses = Transaction::forUser($userId)
             ->whereYear('date', $selectedMonth->year)
             ->whereMonth('date', $selectedMonth->month)
+            ->whereNotIn('type', ['settlement_received', 'settlement_paid'])
             ->sum('amount');
 
-        $remaining = $monthlyAllowance - $monthlyExpenses;
+        $settlementReceived = Transaction::forUser($userId)
+            ->whereYear('date', $selectedMonth->year)
+            ->whereMonth('date', $selectedMonth->month)
+            ->where('type', 'settlement_received')
+            ->sum('amount');
+
+        $remaining = $monthlyAllowance - $monthlyExpenses + $settlementReceived;
 
         $spentPercentage = $monthlyAllowance > 0
             ? ($monthlyExpenses / $monthlyAllowance) * 100
             : 0;
 
-        $totalExpensesAllTime = Transaction::forUser($userId)->sum('amount');
+        $totalExpensesAllTime = Transaction::forUser($userId)
+            ->whereNotIn('type', ['settlement_received', 'settlement_paid'])
+            ->sum('amount');
 
         return [
             'monthlyExpenses' => $monthlyExpenses,
@@ -64,8 +73,9 @@ class DashboardService
             $chartExpenses[]   = (float) Transaction::forUser($userId)
                 ->whereYear('date', $month->year)
                 ->whereMonth('date', $month->month)
+                ->whereNotIn('type', ['settlement_received', 'settlement_paid'])
                 ->sum('amount');
-            $chartAllowances[] = $monthlyAllowance; 
+            $chartAllowances[] = $monthlyAllowance;
         }
 
         return compact('chartMonths', 'chartExpenses', 'chartAllowances');
@@ -153,7 +163,7 @@ class DashboardService
     {
         return Category::orderBy('name')->get();
     }
-    
+
     public function getDailyAllowance($remainingBudget)
     {
         $now = now();

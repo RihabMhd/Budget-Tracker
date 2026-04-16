@@ -46,28 +46,30 @@ class GroupService
     public function createSharedExpense(Group $group, User $payer, array $data): Transaction
     {
         return DB::transaction(function () use ($group, $payer, $data) {
+            $otherMembers = $group->members->where('id', '!=', $payer->id);
+            $memberCount  = $otherMembers->count();
+            $totalMembers = $memberCount + 1; 
+
+            $shareAmount = $memberCount > 0
+                ? round($data['amount'] / $totalMembers, 2)
+                : $data['amount'];
+
+           
             $transaction = Transaction::create([
                 'user_id'     => $payer->id,
                 'group_id'    => $group->id,
                 'category_id' => $data['category_id'],
-                'amount'      => $data['amount'],
+                'amount'      => $shareAmount, 
                 'date'        => $data['date'] ?? now(),
                 'description' => $data['description'],
             ]);
 
-            $otherMembers = $group->members->where('id', '!=', $payer->id);
-            $memberCount  = $otherMembers->count();
-
-            if ($memberCount > 0) {
-                $shareAmount = round($data['amount'] / ($memberCount + 1), 2);
-
-                foreach ($otherMembers as $member) {
-                    ExpenseSplit::create([
-                        'transaction_id' => $transaction->id,
-                        'user_id'        => $member->id,
-                        'amount_share'   => $shareAmount,
-                    ]);
-                }
+            foreach ($otherMembers as $member) {
+                ExpenseSplit::create([
+                    'transaction_id' => $transaction->id,
+                    'user_id'        => $member->id,
+                    'amount_share'   => $shareAmount,
+                ]);
             }
 
             return $transaction;
@@ -138,9 +140,11 @@ class GroupService
         return DB::transaction(function () use ($group, $debtor, $creditor) {
             // Find all unpaid splits the debtor owes the creditor in this group
             $splits = ExpenseSplit::where('user_id', $debtor->id)
-                ->whereHas('transaction', fn($q) => $q
-                    ->where('group_id', $group->id)
-                    ->where('user_id', $creditor->id)
+                ->whereHas(
+                    'transaction',
+                    fn($q) => $q
+                        ->where('group_id', $group->id)
+                        ->where('user_id', $creditor->id)
                 )->get();
 
             $totalOwed = $splits->sum('amount_share');
