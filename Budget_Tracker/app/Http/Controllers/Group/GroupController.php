@@ -74,9 +74,11 @@ class GroupController extends Controller
             if ($member->id === $userId) continue;
 
             $amount = \App\Models\ExpenseSplit::where('user_id', $member->id)
-                ->whereHas('transaction', fn($q) => $q
-                    ->where('group_id', $group->id)
-                    ->where('user_id', $userId)
+                ->whereHas(
+                    'transaction',
+                    fn($q) => $q
+                        ->where('group_id', $group->id)
+                        ->where('user_id', $userId)
                 )->sum('amount_share');
 
             if ($amount > 0) {
@@ -91,9 +93,11 @@ class GroupController extends Controller
             if ($member->id === $userId) continue;
 
             $amount = \App\Models\ExpenseSplit::where('user_id', $userId)
-                ->whereHas('transaction', fn($q) => $q
-                    ->where('group_id', $group->id)
-                    ->where('user_id', $member->id)
+                ->whereHas(
+                    'transaction',
+                    fn($q) => $q
+                        ->where('group_id', $group->id)
+                        ->where('user_id', $member->id)
                 )->sum('amount_share');
 
             if ($amount > 0) {
@@ -110,7 +114,10 @@ class GroupController extends Controller
             ->latest('date')
             ->paginate(5);
 
-        $categories = \App\Models\Category::all();
+        $categories = \App\Models\Category::where('is_custom', false)
+            ->orWhere('user_id', Auth::id())
+            ->get();
+
 
         return view('groups.show', compact(
             'group',

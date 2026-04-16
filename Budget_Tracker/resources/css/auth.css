@@ -1,86 +1,94 @@
 body {
-     font-family: 'Poppins', sans-serif;
-     background-color: #F9F7F2;
-     min-height: 100vh;
-     margin: 0;
-     display: flex;
-     flex-direction: column;
-     overflow-x: hidden;
- }
-
- .btn-modern {
-     display: inline-flex;
-     align-items: center;
-     justify-content: center;
-     padding: 0.6rem 1.2rem;
-     font-size: 0.875rem;
-     font-weight: 600;
-     border-radius: 8px;
-     transition: all 0.2s ease-in-out;
-     border: 1px solid rgba(0, 0, 0, 0.05);
- }
-
- @media (min-width: 768px) {
-    .btn-modern {
-        padding: 0.6rem 1.75rem;
-    }
- }
-
- .btn-primary {
-     background-color: #FBCF97;
-     color: #43321b;
-     box-shadow: 0 4px 6px -1px rgba(251, 207, 151, 0.4);
- }
-
- .btn-primary:hover {
-     background-color: #f7bc71;
-     transform: translateY(-1px);
-     box-shadow: 0 10px 15px -3px rgba(251, 207, 151, 0.3);
- }
-
- .btn-outline {
-     background-color: transparent;
-     color: #374151;
-     border: 1px solid #e5e7eb;
- }
-
- .btn-outline:hover {
-     background-color: #ffffff;
-     border-color: #d1d5db;
-     transform: translateY(-1px);
- }
-
- .auth-wrapper {
-     flex: 1;
-     display: flex;
-     align-items: center;
-     justify-content: center;
-     position: relative;
-     z-index: 10;
-     padding: 2rem 0; /* Changed for better mobile scrolling */
- }
-
- .illustration-layer {
-     position: fixed;
-     inset: 0;
-     z-index: 1;
-     display: flex;
-     justify-content: space-between;
-     align-items: flex-end;
-     padding: 0 0 2% 0;
-     pointer-events: none;
- }
-
- /* Input override for styling */
- .custom-input {
+    font-family: 'Poppins', sans-serif;
     background-color: #F9F7F2;
-    border: 1px solid #e5e7eb;
-    transition: all 0.2s ease;
- }
+    min-height: 100vh;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    overflow-x: hidden;
+}
 
- .custom-input:focus {
-    border-color: #FBCF97;
-    background-color: #fff;
-    outline: none;
-    box-shadow: 0 0 0 4px rgba(251, 207, 151, 0.15);
- }
+.btn-modern {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.6rem 1.75rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    border-radius: 8px;
+    transition: all 0.2s ease-in-out;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.btn-primary {
+    background-color: #FBCF97;
+    color: #43321b;
+    box-shadow: 0 4px 6px -1px rgba(251, 207, 151, 0.4);
+}
+
+.btn-primary:hover {
+    background-color: #f7bc71;
+    transform: translateY(-1px);
+    box-shadow: 0 10px 15px -3px rgba(251, 207, 151, 0.3);
+}
+
+.btn-outline {
+    background-color: transparent;
+    color: #374151;
+    border: 1px solid #e5e7eb;
+}
+
+.btn-outline:hover {
+    background-color: #ffffff;
+    border-color: #d1d5db;
+    transform: translateY(-1px);
+}
+
+.auth-wrapper {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    z-index: 10;
+    padding: 1rem;
+    padding-bottom: 5vh;
+}
+
+/* Card container — full width on mobile, capped on larger screens */
+.auth-card {
+    width: 100%;
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+.illustration-layer {
+    position: fixed;
+    inset: 0;
+    z-index: 1;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    padding: 0 0 2% 0;
+    pointer-events: none;
+}
+
+/* Hide decorative illustrations on very small screens to avoid overlap */
+@media (max-width: 400px) {
+    .illustration-layer {
+        display: none;
+    }
+}
+
+/* Input sizing adjustments for mobile */
+.custom-input {
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+/* Ensure inputs don't get zoomed on iOS (font-size must be >= 16px on mobile) */
+@media (max-width: 640px) {
+    .custom-input {
+        font-size: 16px;
+    }
+}
