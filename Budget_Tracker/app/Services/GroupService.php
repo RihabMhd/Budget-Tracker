@@ -76,10 +76,6 @@ class GroupService
         });
     }
 
-    /**
-     * Kick a member from the group.
-     * Only an Admin/owner can kick. Cannot kick the owner.
-     */
     public function kickMember(Group $group, User $actor, User $target): void
     {
         $isAdmin = $group->members()
