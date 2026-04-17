@@ -26,6 +26,7 @@ class AuthService
 
     public function login(array $credentials): bool
     {
+        // try to sign the user in with the email and password they gave
         if (! Auth::attempt($credentials)) {
             return false;
         }
@@ -40,7 +41,8 @@ class AuthService
 
             if ($hoursSinceLastActivity > 48) {
                 $user->current_streak = 1;
-            } elseif ($isNewDay) {
+            } 
+            elseif ($isNewDay) {
                 $user->current_streak += 1;
 
                 $user->points += $this->calculateStreakPoints($user->current_streak);
@@ -54,7 +56,6 @@ class AuthService
 
         return true;
     }
-
 
     private function calculateStreakPoints(int $streak): int
     {

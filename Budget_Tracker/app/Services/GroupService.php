@@ -94,10 +94,6 @@ class GroupService
         $group->members()->detach($target->id);
     }
 
-    /**
-     * Transfer group ownership to another member.
-     * Only the current owner can do this.
-     */
     public function transferOwnership(Group $group, User $actor, User $newOwner): void
     {
         if ($actor->id !== $group->owner_id) {
@@ -109,32 +105,15 @@ class GroupService
         }
 
         DB::transaction(function () use ($group, $actor, $newOwner) {
-            // Demote old owner to Member
             $group->members()->updateExistingPivot($actor->id, ['role' => 'Member']);
-
-            // Promote new owner to Admin
             $group->members()->updateExistingPivot($newOwner->id, ['role' => 'Admin']);
-
-            // Update the owner_id on the group
             $group->update(['owner_id' => $newOwner->id]);
         });
     }
 
-    /**
-     * Settle a debt: the payer (debtor) pays the creditor.
-     *
-     * - Clears the debtor's ExpenseSplit records in this group toward the creditor.
-     * - Creates a "settlement" Transaction so there's an audit trail:
-     *     * debtor's balance decreases  (they spent money paying back)
-     *     * creditor's balance increases (they received money)
-     * - We record it as a negative-amount transaction on the debtor and a
-     *   corresponding income transaction on the creditor, using a dedicated
-     *   "Settlement" category (auto-created if missing).
-     */
     public function settleDebt(Group $group, User $debtor, User $creditor): float
     {
         return DB::transaction(function () use ($group, $debtor, $creditor) {
-            // Find all unpaid splits the debtor owes the creditor in this group
             $splits = ExpenseSplit::where('user_id', $debtor->id)
                 ->whereHas(
                     'transaction',
@@ -149,13 +128,11 @@ class GroupService
                 abort(422, 'No outstanding debt to settle.');
             }
 
-            // Get or create a "Settlement" category (system-level, no user)
             $category = \App\Models\Category::firstOrCreate(
                 ['name' => 'Settlement', 'is_custom' => false],
                 ['color' => '#2EB872', 'user_id' => null]
             );
 
-            // Record expense on debtor's side (money leaving their account)
             Transaction::create([
                 'user_id'     => $debtor->id,
                 'group_id'    => $group->id,
@@ -166,7 +143,6 @@ class GroupService
                 'description' => "Settlement paid to {$creditor->username}",
             ]);
 
-            // Record income on creditor's side (money coming in)
             Transaction::create([
                 'user_id'     => $creditor->id,
                 'group_id'    => $group->id,
@@ -177,7 +153,6 @@ class GroupService
                 'description' => "Settlement received from {$debtor->username}",
             ]);
 
-            // Clear the splits so the debt no longer shows up
             $splits->each->delete();
 
             return $totalOwed;
