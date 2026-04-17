@@ -1,4 +1,3 @@
-// ── Modal helpers ──────────────────────────────────────────────
 function openModal(id) {
     const el = document.getElementById(id);
     if (el) el.classList.remove('hidden');
@@ -9,7 +8,6 @@ function closeModal(id) {
     if (el) el.classList.add('hidden');
 }
 
-// ── Category dropdown helpers ──────────────────────────────────
 function selectCat(target, id, name, color, dashed) {
     const dot = document.getElementById(`${target}-cat-dot`);
     const label = document.getElementById(`${target}-cat-label`);
@@ -26,10 +24,8 @@ function selectCat(target, id, name, color, dashed) {
     if (dropdown) dropdown.classList.add('hidden');
 }
 
-// ── Boot ───────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
 
-    // Standard UI Listeners
     document.querySelectorAll('[data-open-modal]').forEach(btn => {
         btn.addEventListener('click', () => openModal(btn.dataset.openModal));
     });
@@ -90,7 +86,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // ── Optimized OCR Logic ──────────────────────────────────────
     const scanInput = document.getElementById('receipt-scan-input');
     if (scanInput) {
         scanInput.addEventListener('change', function (e) {
@@ -109,39 +104,31 @@ document.addEventListener('DOMContentLoaded', () => {
             }).then(({ data: { text } }) => {
                 if (status) status.classList.add('hidden');
 
-                // Split text into lines to analyze them one by one
                 const lines = text.split('\n').map(l => l.trim().toLowerCase());
                 console.log("Analyzed Lines:", lines);
 
                 let detectedAmount = null;
 
-                // 1. SEARCH FOR KEYWORDS (The most reliable way)
-                // We look for any line containing "total", "payé", "net", or "dh"
                 const keywords = ['total', 'net', 'payer', 'payé', 'dh', 'mad'];
 
                 for (let line of lines) {
                     if (keywords.some(key => line.includes(key))) {
-                        // Find numbers like 780.00 or 780,00 in this specific line
                         const match = line.match(/(\d+[\.,]\d{2})/);
                         if (match) {
                             detectedAmount = match[1];
-                            // If it's a 'total' line, we stop searching - we found it!
                             if (line.includes('total') || line.includes('net')) break;
                         }
                     }
                 }
 
-                // 2. FALLBACK: If keywords failed, find the largest number in the whole text
                 if (!detectedAmount) {
                     const allNumbers = text.match(/(\d+[\.,]\d{2})/g);
                     if (allNumbers) {
-                        // Convert to numbers and find the maximum
                         const nums = allNumbers.map(n => parseFloat(n.replace(',', '.')));
                         detectedAmount = Math.max(...nums).toString();
                     }
                 }
 
-                // Apply the result
                 if (detectedAmount && amountInput) {
                     amountInput.value = detectedAmount.replace(',', '.');
                     amountInput.classList.add('ocr-highlight'); // Trigger the green glow

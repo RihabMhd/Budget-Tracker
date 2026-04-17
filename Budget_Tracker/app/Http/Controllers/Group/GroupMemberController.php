@@ -18,16 +18,11 @@ class GroupMemberController extends Controller
         $this->groupService = $groupService;
     }
 
-    /**
-     * DELETE /groups/{group}/members/{user}
-     * Kick a member (admin only) or leave the group (self).
-     */
     public function destroy(Group $group, User $user)
     {
         $auth = Auth::user();
 
         if ($auth->id === $user->id) {
-            // Leaving yourself
             $group->members()->detach($user->id);
 
             if ($user->id === $group->owner_id) {
@@ -46,16 +41,12 @@ class GroupMemberController extends Controller
                 ->with('success', 'You left the group.');
         }
 
-        // Kicking someone else
         $this->groupService->kickMember($group, $auth, $user);
 
         return back()->with('success', "{$user->username} has been removed from the group.");
     }
 
-    /**
-     * POST /groups/{group}/members/{user}/transfer
-     * Transfer ownership to another member.
-     */
+
     public function transfer(Group $group, User $user)
     {
         $this->groupService->transferOwnership($group, Auth::user(), $user);
@@ -63,10 +54,7 @@ class GroupMemberController extends Controller
         return back()->with('success', "Ownership transferred to {$user->username}.");
     }
 
-    /**
-     * POST /groups/{group}/members/{user}/settle
-     * Current user pays off their debt to {user}.
-     */
+
     public function settle(Group $group, User $user)
     {
         $amount = $this->groupService->settleDebt($group, Auth::user(), $user);

@@ -23,12 +23,6 @@ class GroupController extends Controller
         return view('groups.index', compact('groups'));
     }
 
-    /**
-     * FIX: Separated into two distinct methods.
-     *
-     * store() now ONLY handles group creation (was broken — it had a $group
-     * parameter and never called createGroup()).
-     */
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -41,11 +35,6 @@ class GroupController extends Controller
             ->with('success', 'Group created successfully!');
     }
 
-    /**
-     * FIX: Added a dedicated method for adding a shared expense to a group.
-     * This is what the "Add Shared Expense" form in show.blade.php submits to.
-     * Route: POST /groups/{group}/transactions  → groups.transactions.store
-     */
     public function storeExpense(Request $request, Group $group)
     {
         $validated = $request->validate([
@@ -67,8 +56,7 @@ class GroupController extends Controller
 
         $group->load('members');
 
-        // Per-person breakdown: how much each member owes ME
-        // (I paid the transaction, they have a split record)
+
         $owes_me = [];
         foreach ($group->members as $member) {
             if ($member->id === $userId) continue;
@@ -86,8 +74,6 @@ class GroupController extends Controller
             }
         }
 
-        // Per-person breakdown: how much I owe each member
-        // (they paid the transaction, I have a split record)
         $i_owe = [];
         foreach ($group->members as $member) {
             if ($member->id === $userId) continue;
@@ -104,8 +90,7 @@ class GroupController extends Controller
                 $i_owe[] = ['user' => $member, 'amount' => $amount];
             }
         }
-
-        // Totals for the summary cards
+        
         $what_people_owe_me = collect($owes_me)->sum('amount');
         $what_i_owe         = collect($i_owe)->sum('amount');
 
