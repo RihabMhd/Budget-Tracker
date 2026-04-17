@@ -10,7 +10,6 @@
 
     <main class="main-content">
 
-        {{-- Reopen add modal automatically if validation failed --}}
         @if ($errors->any())
             <span data-reopen-modal="add-modal" style="display:none;"></span>
         @endif
