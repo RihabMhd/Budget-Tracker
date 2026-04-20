@@ -9,6 +9,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
+use App\Http\Requests\Budget\StoreCategoryBudgetRequest;
 
 class BudgetController extends Controller
 {
@@ -19,14 +20,9 @@ class BudgetController extends Controller
         return view('budgets.index', $this->budgetService->getIndexData(Auth::user()));
     }
 
-    public function storeCategory(Request $request): RedirectResponse
+    public function storeCategory(StoreCategoryBudgetRequest $request): RedirectResponse
     {
-        $validated = $request->validate([
-            'category_id'   => 'required|exists:categories,id',
-            'monthly_limit' => 'required|numeric|min:1',
-        ]);
-
-        $this->budgetService->saveCategoryBudget(Auth::id(), $validated);
+        $this->budgetService->saveCategoryBudget(Auth::id(), $request->validated());
 
         return back()->with('success', 'Budget saved successfully.');
     }

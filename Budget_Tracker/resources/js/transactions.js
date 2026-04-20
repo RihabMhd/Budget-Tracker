@@ -131,7 +131,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 if (detectedAmount && amountInput) {
                     amountInput.value = detectedAmount.replace(',', '.');
-                    amountInput.classList.add('ocr-highlight'); // Trigger the green glow
+                    amountInput.classList.add('ocr-highlight'); 
                 }
 
                 const dateRegex = /(\d{2}[\/.-]\d{2}[\/.-]\d{4})|(\d{4}[\/.-]\d{2}[\/.-]\d{2})/;

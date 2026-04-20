@@ -7,6 +7,9 @@ use App\Services\GroupService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Group\StoreGroupRequest;
+use App\Http\Requests\Group\StoreGroupExpenseRequest;
+use App\Http\Requests\Group\JoinGroupRequest;
 
 class GroupController extends Controller
 {
@@ -23,28 +26,17 @@ class GroupController extends Controller
         return view('groups.index', compact('groups'));
     }
 
-    public function store(Request $request)
+    public function store(StoreGroupRequest $request)
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-        ]);
-
-        $group = $this->groupService->createGroup(Auth::user(), $validated);
+        $group = $this->groupService->createGroup(Auth::user(), $request->validated());
 
         return redirect()->route('groups.show', $group)
             ->with('success', 'Group created successfully!');
     }
 
-    public function storeExpense(Request $request, Group $group)
+    public function storeExpense(StoreGroupExpenseRequest $request, Group $group)
     {
-        $validated = $request->validate([
-            'amount'      => 'required|numeric|min:0.01',
-            'category_id' => 'required|exists:categories,id',
-            'description' => 'required|string|max:255',
-            'date'        => 'nullable|date',
-        ]);
-
-        $this->groupService->createSharedExpense($group, Auth::user(), $validated);
+        $this->groupService->createSharedExpense($group, Auth::user(), $request->validated());
 
         return redirect()->route('groups.show', $group)
             ->with('success', 'Expense shared and split successfully!');
@@ -115,12 +107,12 @@ class GroupController extends Controller
         ));
     }
 
-    public function join(Request $request)
+    public function join(JoinGroupRequest $request)
     {
         $request->validate(['invite_code' => 'required|string']);
 
         try {
-            $group = $this->groupService->joinGroupByCode(Auth::user(), $request->invite_code);
+            $group = $this->groupService->joinGroupByCode(Auth::user(), $request->validated());
             return redirect()->route('groups.show', $group)
                 ->with('success', "Welcome to {$group->name}!");
         } catch (\Exception $e) {
