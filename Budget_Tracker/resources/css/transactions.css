@@ -1,4 +1,4 @@
-/* ── Edit card ── */
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap');
 .edit-card {
     background: #fff;
     border: 1px solid #ede9e1;
@@ -134,7 +134,6 @@
     background: #fef2f2;
 }
 
-@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap');
 
 * {
     box-sizing: border-box;
