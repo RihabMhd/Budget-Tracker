@@ -7,6 +7,7 @@ use App\Models\Group;
 use App\Services\GroupService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Requests\Group\StoreGroupExpenseRequest;
 
 class GroupTransactionController extends Controller
 {
@@ -17,16 +18,9 @@ class GroupTransactionController extends Controller
         $this->groupService = $groupService;
     }
 
-    public function store(Request $request, Group $group)
+    public function store(StoreGroupExpenseRequest $request, Group $group)
     {
-        $validated = $request->validate([
-            'amount'      => 'required|numeric|min:0.01',
-            'category_id' => 'required|exists:categories,id',
-            'description' => 'required|string|max:255',
-            'date'        => 'nullable|date',
-        ]);
-
-        $this->groupService->createSharedExpense($group, Auth::user(), $validated);
+        $this->groupService->createSharedExpense($group, Auth::user(), $request->validated());
 
         return redirect()->route('groups.show', $group)
             ->with('success', 'Expense added and split among members!');
