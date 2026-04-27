@@ -53,7 +53,6 @@
 <body>
     <div class="header">
         <h1>Monthly Financial Report</h1>
-        {{-- Change $user->name to $userName --}}
         <p>{{ $month }} - Prepared for {{ $userName ?? 'Guest User' }}</p>
     </div>
 
