@@ -26,7 +26,6 @@ class AuthService
 
     public function login(array $credentials): bool
     {
-        // try to sign the user in with the email and password they gave
         if (! Auth::attempt($credentials)) {
             return false;
         }
